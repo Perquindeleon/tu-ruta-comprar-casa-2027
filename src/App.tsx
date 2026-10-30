@@ -14,8 +14,12 @@ import { LegalModal } from './components/LegalModal';
 import { DiagnosticAnswers, CalculatorInputs } from './types';
 import { evaluateDiagnostic } from './data/questions';
 import { calculateRealMortgage, calculateRateComparisons } from './utils/calculator';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
 
-export const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const { lang } = useLanguage();
+  const isEn = lang === 'en';
+
   // 1. Diagnostic state (ephemeral in-memory)
   const [diagnosticAnswers, setDiagnosticAnswers] = useState<DiagnosticAnswers>({
     timeframe: '2027_or_later',
@@ -71,6 +75,11 @@ export const App: React.FC = () => {
     }
   }, [diagnosticAnswers.state]);
 
+  // Update HTML lang attribute dynamically
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
   const handleUpdateDiagnostic = (updated: Partial<DiagnosticAnswers>) => {
     setDiagnosticAnswers((prev) => ({ ...prev, ...updated }));
   };
@@ -100,7 +109,10 @@ export const App: React.FC = () => {
   };
 
   const handleResetChecklist = () => {
-    if (window.confirm('¿Deseas reiniciar todas las casillas de tu checklist a pendientes?')) {
+    const confirmMsg = isEn
+      ? 'Do you want to reset all your checklist items back to pending?'
+      : '¿Deseas reiniciar todas las casillas de tu checklist a pendientes?';
+    if (window.confirm(confirmMsg)) {
       setCompletedChecklistIds([]);
     }
   };
@@ -112,7 +124,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const diagnosticResult = evaluateDiagnostic(diagnosticAnswers);
+  const diagnosticResult = evaluateDiagnostic(diagnosticAnswers, lang);
   const calculatorOutputs = calculateRealMortgage(calculatorInputs);
   const rateScenarios = calculateRateComparisons(
     calculatorOutputs.loanAmount,
@@ -201,6 +213,14 @@ export const App: React.FC = () => {
         onClose={() => setLegalModalType(null)}
       />
     </div>
+  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 };
 

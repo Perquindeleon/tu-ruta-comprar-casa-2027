@@ -1,4 +1,4 @@
-import { EducationalArticle } from '../types';
+import { EducationalArticle, Language } from '../types';
 
 export const EDUCATIONAL_ARTICLES: EducationalArticle[] = [
   {
@@ -398,3 +398,406 @@ export const EDUCATIONAL_ARTICLES: EducationalArticle[] = [
     lastUpdated: 'Octubre 2024'
   }
 ];
+
+export const EDUCATIONAL_ARTICLES_EN: EducationalArticle[] = [
+  {
+    id: 'credito-hipotecario',
+    category: 'Financing & Credit',
+    title: 'Mortgage Credit in the U.S.',
+    subtitle: 'Your FICO score and how it directly impacts your monthly payment.',
+    summary: 'Your credit score is more than just a number: it determines the interest rate banks offer you and how much you pay every month for 30 years.',
+    explanation: 'Mortgage lenders use specialized FICO score versions (typically FICO 2, 4, and 5) from the three bureaus: Equifax, Experian, and TransUnion. If you apply with a co-borrower, lenders usually use the lower of the two middle scores.',
+    whyItMatters: 'A difference of just 40 points in your credit score can mean an interest rate 0.5% to 1% lower. On a $350,000 loan, a 0.75% rate difference can save you $50,000 to $60,000+ in interest over the life of the loan.',
+    questionsToAsk: [
+      'Which exact middle FICO score is the lender using to qualify me?',
+      'Are there disputed accounts or errors on my report that I should fix before submitting a formal application?',
+      'How many points would my score increase if I pay down a specific credit card?'
+    ],
+    recommendedActions: [
+      'Get your free official credit reports at AnnualCreditReport.com.',
+      'Keep utilization on every credit card below 30% (ideally under 10%).',
+      'Do not close old accounts or apply for new credit cards within 12 months before buying.'
+    ],
+    officialSourceLabel: 'CFPB - Credit Reports and Scores',
+    officialSourceUrl: 'https://www.consumerfinance.gov/consumer-tools/credit-reports-and-scores/',
+    lastUpdated: 'October 2024'
+  },
+  {
+    id: 'pronto-down-payment',
+    category: 'Savings & Budget',
+    title: 'The Down Payment',
+    subtitle: '20% myths vs. real options starting at 3% or 3.5%.',
+    summary: 'You do not need 20% cash to buy a home in the U.S., although a larger down payment lowers your monthly bill and eliminates PMI.',
+    explanation: 'The down payment is the portion of the purchase price you pay out-of-pocket at closing. While 20% avoids Private Mortgage Insurance (PMI), conventional loans start at 3% down, FHA loans require 3.5%, and VA or USDA loans offer 0% down payment options.',
+    whyItMatters: 'Waiting years to save 20% can price you out of a rising market. However, putting too little down can push your monthly payment higher than your household budget can comfortably sustain.',
+    questionsToAsk: [
+      'What is the minimum down payment percentage required for the loan type that fits me best?',
+      'Where will the funds come from (personal savings, family gift funds, or a DPA program)?',
+      'How much will remain in my emergency fund after paying the down payment?'
+    ],
+    recommendedActions: [
+      'Keep your homebuying savings in a dedicated high-yield savings account (HYSA) separate from daily spending.',
+      'If receiving family gift funds, prepare a formal gift letter and clean bank statements.',
+      'Test 3.5%, 5%, and 10% down in the calculator to compare how your monthly payment changes.'
+    ],
+    officialSourceLabel: 'CFPB - Down Payment Options',
+    officialSourceUrl: 'https://www.consumerfinance.gov/owning-a-home/',
+    lastUpdated: 'October 2024'
+  },
+  {
+    id: 'costos-de-cierre',
+    category: 'True Costs',
+    title: 'Closing Costs',
+    subtitle: 'The 2% to 5% expense many buyers forget to budget for.',
+    summary: 'In addition to your down payment, you will need 2% to 5% of the home price for legal fees, taxes, insurance, and lender charges.',
+    explanation: 'Closing costs cover lender fees (origination, underwriting), third-party services (appraisal, credit report, title search, title insurance), and prepaid escrow reserves (property taxes and annual homeowners insurance).',
+    whyItMatters: 'If you buy a $350,000 home with 5% down ($17,500), you may need an extra $7,000 to $14,000 just for closing costs. Failing to budget for them can derail your purchase at the closing table.',
+    questionsToAsk: [
+      'What percentage of closing costs are direct lender charges vs. government taxes and escrow prepaids?',
+      'Can we negotiate seller concessions to cover part or all of these closing costs?',
+      'Which services can I shop for independently (Section C of the Loan Estimate)?'
+    ],
+    recommendedActions: [
+      'Review Page 2 of the Loan Estimate your lender must provide within 3 business days of application.',
+      'Shop around and compare Title Insurance company fees in your area.',
+      'Ask your agent whether sellers in your local market are currently offering closing cost credits.'
+    ],
+    officialSourceLabel: 'CFPB - Closing Costs Breakdown',
+    officialSourceUrl: 'https://www.consumerfinance.gov/owning-a-home/closing-disclosure/',
+    lastUpdated: 'October 2024'
+  },
+  {
+    id: 'prestamos-fha',
+    category: 'Mortgage Types',
+    title: 'FHA-Insured Loans',
+    subtitle: 'Accessible financing for buyers with credit scores starting at 580.',
+    summary: 'Insured by the Federal Housing Administration, allowing a 3.5% down payment and more flexible debt-to-income ratios.',
+    explanation: 'FHA loans help buyers with moderate credit scores or limited savings qualify for a home. In exchange, they require an Upfront Mortgage Insurance Premium (UFMIP of 1.75%) and a monthly Mortgage Insurance Premium (MIP) that typically lasts for the life of the loan if you put less than 10% down.',
+    whyItMatters: 'It is one of the most popular entry paths for first-time buyers, but lifetime MIP can make it more expensive long-term than a conventional loan unless you refinance later.',
+    questionsToAsk: [
+      'What is the maximum FHA loan limit in my specific county?',
+      'How much total MIP will I pay over the first 5 years?',
+      'When and how can I refinance into a conventional loan to remove mortgage insurance?'
+    ],
+    recommendedActions: [
+      'Check the FHA loan limits for your county on HUD.gov.',
+      'Ensure the property meets FHA minimum health and safety standards.',
+      'Compare the FHA quote side-by-side with a Conventional HomeReady or Home Possible loan.'
+    ],
+    officialSourceLabel: 'HUD - FHA Loan Requirements',
+    officialSourceUrl: 'https://www.hud.gov/buying/loans',
+    lastUpdated: 'October 2024'
+  },
+  {
+    id: 'prestamos-va',
+    category: 'Mortgage Types',
+    title: 'VA Home Loans',
+    subtitle: 'The premier 0% down benefit for veterans and service members.',
+    summary: 'Guaranteed by the Department of Veterans Affairs, offering 100% financing with no monthly mortgage insurance.',
+    explanation: 'Available to active-duty service members, honorably discharged veterans, and eligible surviving spouses. VA loans require no down payment and no monthly PMI, though a one-time VA Funding Fee usually applies (which can be financed into the loan or waived for service-connected disabilities).',
+    whyItMatters: 'It is one of the most powerful and cost-effective mortgage programs in the United States, featuring competitive interest rates and buyer-friendly terms.',
+    questionsToAsk: [
+      'Do I already have my Certificate of Eligibility (COE) in hand?',
+      'Do I qualify for a VA Funding Fee exemption due to service-connected disability?',
+      'Does my loan officer have extensive experience closing VA loans?'
+    ],
+    recommendedActions: [
+      'Download your COE through VA.gov.',
+      'Work with a lender experienced in VA underwriting and appraisal standards.',
+      'Make sure the property satisfies VA Minimum Property Requirements (MPRs).'
+    ],
+    officialSourceLabel: 'U.S. Department of Veterans Affairs - VA Home Loans',
+    officialSourceUrl: 'https://www.va.gov/housing-assistance/home-loans/',
+    lastUpdated: 'October 2024'
+  },
+  {
+    id: 'prestamos-usda',
+    category: 'Mortgage Types',
+    title: 'USDA Rural Development Loans',
+    subtitle: '100% financing in eligible suburban and rural communities.',
+    summary: 'U.S. Department of Agriculture program allowing 0% down payment purchases in designated areas outside major metro cores.',
+    explanation: 'USDA Section 502 loans finance 100% of the purchase price. To qualify, the home must be located in an eligible rural or suburban area (many towns 25–40 minutes outside cities qualify) and total household income must not exceed the county limit.',
+    whyItMatters: 'Allows qualified buyers to purchase with zero down payment and significantly lower annual guarantee fees than FHA mortgage insurance.',
+    questionsToAsk: [
+      'Is the exact property address inside the official USDA geographic eligibility map?',
+      'Does the combined income of all adult household members meet the county cap?',
+      'Is the lender approved to process USDA Guaranteed or Direct loans?'
+    ],
+    recommendedActions: [
+      'Look up the property address on the official USDA property eligibility map.',
+      'Calculate total household income according to USDA guidelines.',
+      'Verify that the property is move-in ready.'
+    ],
+    officialSourceLabel: 'USDA Rural Development - Single Family Housing',
+    officialSourceUrl: 'https://www.rd.usda.gov/',
+    lastUpdated: 'October 2024'
+  },
+  {
+    id: 'prestamos-convencionales',
+    category: 'Mortgage Types',
+    title: 'Conforming Conventional Loans',
+    subtitle: 'The go-to option for buyers with strong credit and stable income.',
+    summary: 'Mortgages not directly backed by a government agency that follow Fannie Mae and Freddie Mac guidelines.',
+    explanation: 'Conventional loans typically require a minimum 620 credit score (720+ for best pricing). They allow down payments as low as 3% for qualified first-time buyers (HomeReady or Home Possible). Private Mortgage Insurance (PMI) automatically cancels once your loan balance reaches 78% of the original value.',
+    whyItMatters: 'Unlike FHA loans, PMI on a conventional loan is temporary. Once you reach 20% equity, you can remove PMI and permanently lower your monthly payment.',
+    questionsToAsk: [
+      'Do I meet the credit and income requirements for 3% or 5% down conventional programs?',
+      'What PMI options are available (monthly, single-premium, or lender-paid)?',
+      'What is the Conforming Loan Limit in my county?'
+    ],
+    recommendedActions: [
+      'Build your credit score above 740 to unlock top-tier conventional interest rates.',
+      'Request quotes at both 3% and 5% down to compare PMI pricing.',
+      'Set a reminder to request PMI cancellation once you reach 20% equity.'
+    ],
+    officialSourceLabel: 'Fannie Mae - Homebuyer Resources',
+    officialSourceUrl: 'https://yourhome.fanniemae.com/',
+    lastUpdated: 'October 2024'
+  },
+  {
+    id: 'seguro-hipotecario-pmi',
+    category: 'True Costs',
+    title: 'Private Mortgage Insurance (PMI)',
+    subtitle: 'What it is, whom it protects, and how to eliminate it.',
+    summary: 'Insurance that protects the lender—not you—against default when your down payment is less than 20%.',
+    explanation: 'PMI typically costs between 0.3% and 1.5% of the loan amount annually, split into 12 monthly installments. Under the Homeowners Protection Act (HPA), you have the right to request PMI cancellation once your loan balance reaches 80% of the original home value, and lenders must terminate it automatically at 78%.',
+    whyItMatters: 'Paying $150 to $250 per month for insurance that does not cover you builds zero equity. Understanding how and when to cancel it helps you plan your financial exit.',
+    questionsToAsk: [
+      'How much exact dollar amount will I pay per month for PMI on this loan quote?',
+      'What are my lender’s rules and timelines to reappraise the home and drop PMI early?',
+      'Does it make more sense to put more money down upfront or pay PMI temporarily?'
+    ],
+    recommendedActions: [
+      'Track your home’s market value and remaining principal balance.',
+      'Once you hit 20% equity through payments or home appreciation, request PMI removal in writing.',
+      'Include PMI in the calculator to see its full impact on your monthly budget.'
+    ],
+    officialSourceLabel: 'CFPB - What is Private Mortgage Insurance?',
+    officialSourceUrl: 'https://www.consumerfinance.gov/ask-cfpb/what-is-private-mortgage-insurance-en-122/',
+    lastUpdated: 'October 2024'
+  },
+  {
+    id: 'impuestos-de-propiedad',
+    category: 'Ongoing Expenses',
+    title: 'Property Taxes',
+    subtitle: 'The local government tax that can increase your monthly payment every year.',
+    summary: 'County and municipal governments fund schools and public services through taxes based on your home’s assessed value.',
+    explanation: 'Property tax rates vary widely across states and counties (from under 0.6% in states like Hawaii or Colorado to over 2% in states like Texas or New Jersey). When you buy a home, the county will reassess the property at the new purchase price, which often raises the tax bill substantially above what the previous owner paid.',
+    whyItMatters: 'Many buyers rely on the seller’s old tax bill (which may have been capped by long-term homestead exemptions). After closing, tax reassessment can increase your monthly escrow payment by hundreds of dollars.',
+    questionsToAsk: [
+      'What is the actual millage rate and effective tax percentage in this county?',
+      'When and how often does the county assessor reassess property values?',
+      'Do I qualify for a Homestead Exemption on my primary residence?'
+    ],
+    recommendedActions: [
+      'Check the local County Property Appraiser website to inspect the property tax history.',
+      'Never rely solely on the historical tax figure listed on real estate portals.',
+      'File for your Homestead Exemption immediately after moving in if offered in your state.'
+    ],
+    officialSourceLabel: 'CFPB - Property Taxes and Escrow',
+    officialSourceUrl: 'https://www.consumerfinance.gov/owning-a-home/loan-estimate/',
+    lastUpdated: 'October 2024'
+  },
+  {
+    id: 'seguro-de-vivienda',
+    category: 'Ongoing Expenses',
+    title: 'Homeowners Insurance',
+    subtitle: 'Protecting your equity and satisfying lender requirements.',
+    summary: 'Mandatory hazard insurance policy covering structural damage, personal belongings, and personal liability.',
+    explanation: 'Before closing, your lender will require proof of a paid first-year homeowners insurance policy. A standard HO-3 policy covers fire, wind, theft, and liability, but explicitly excludes floods and earthquakes, which require separate policies.',
+    whyItMatters: 'In areas prone to hurricanes, wildfires, or severe storms, insurance premiums have risen sharply and can impact your debt-to-income ratio and mortgage qualification.',
+    questionsToAsk: [
+      'Is the property located in a FEMA Special Flood Hazard Area?',
+      'What is the deductible for hurricane, hail, or windstorm damage?',
+      'Does the current roof qualify for wind mitigation insurance discounts?'
+    ],
+    recommendedActions: [
+      'Get quotes from at least 3 insurance carriers during your inspection period.',
+      'Check the official FEMA flood map (msc.fema.gov).',
+      'Ask whether bundling home and auto insurance lowers your premium.'
+    ],
+    officialSourceLabel: 'NAIC - Consumers Guide to Home Insurance',
+    officialSourceUrl: 'https://content.naic.org/consumer/homeowner-insurance.htm',
+    lastUpdated: 'October 2024'
+  },
+  {
+    id: 'asociaciones-hoa',
+    category: 'True Costs',
+    title: 'Homeowners Associations (HOA)',
+    subtitle: 'Community rules, monthly dues, and special assessment risks.',
+    summary: 'HOAs maintain common areas and enforce community standards, but impose mandatory monthly fees and strict legal rules.',
+    explanation: 'If you buy a condo, townhouse, or home in a planned development, it likely belongs to an HOA. You must pay monthly or quarterly dues. The HOA has legal authority to levy fines, place liens on your property, or even foreclose for unpaid dues.',
+    whyItMatters: 'A $300 or $500 monthly HOA fee reduces your borrowing power just like a car loan. Furthermore, an underfunded HOA can impose surprise "special assessments" of thousands of dollars for major repairs.',
+    questionsToAsk: [
+      'How well funded are the HOA’s financial reserves (Reserve Study)?',
+      'Have there been—or are there planned—special assessments?',
+      'What are the rules regarding rentals, pets, parking, and exterior changes?'
+    ],
+    recommendedActions: [
+      'Always include an HOA document review contingency in your purchase offer.',
+      'Read the last 2 years of HOA board meeting minutes to spot recurring structural or financial issues.',
+      'Always include the full HOA fee in your monthly housing cost calculation.'
+    ],
+    officialSourceLabel: 'CFPB - Buying in an HOA Community',
+    officialSourceUrl: 'https://www.consumerfinance.gov/owning-a-home/',
+    lastUpdated: 'October 2024'
+  },
+  {
+    id: 'inspecciones-de-propiedad',
+    category: 'Due Diligence',
+    title: 'Independent Home Inspections',
+    subtitle: 'Your strongest shield against buying a financial money pit.',
+    summary: 'An independent inspector examines the structure, roof, plumbing, electrical panel, and HVAC before you close.',
+    explanation: 'A home inspection is a thorough visual evaluation performed by a professional hired by you—never confuse it with the bank appraisal. The inspector identifies safety hazards, major wear and tear, construction defects, and needed repairs.',
+    whyItMatters: 'Spending $400 to $600 on an inspection can uncover a failing $15,000 roof, an $8,000 HVAC issue, or foundation problems that allow you to renegotiate or walk away safely.',
+    questionsToAsk: [
+      'Does the inspector hold an active state license and Errors & Omissions insurance?',
+      'Can I attend the inspection in person to walk through the findings?',
+      'Are specialized inspections needed (termite/WDO, septic tank, sewer scope, mold, radon)?'
+    ],
+    recommendedActions: [
+      'Never waive your inspection contingency unless you are a seasoned builder or investor.',
+      'Attend the final hour of the inspection so the inspector can show you main shutoff valves and breaker panels.',
+      'Use critical findings to request seller credits or price reductions.'
+    ],
+    officialSourceLabel: 'HUD - Ten Important Questions to Ask Your Home Inspector',
+    officialSourceUrl: 'https://www.hud.gov/program_offices/housing/sfh/insp/inspfaq',
+    lastUpdated: 'October 2024'
+  },
+  {
+    id: 'tasaciones-appraisals',
+    category: 'Due Diligence',
+    title: 'The Home Appraisal',
+    subtitle: 'How the lender confirms the property is worth the contract price.',
+    summary: 'A licensed independent appraiser determines the fair market value of the home to protect the lender’s collateral.',
+    explanation: 'The bank will only lend based on the lesser of the purchase price or the appraised value. If the appraisal comes in lower than the contract price (an appraisal gap), the buyer must pay the difference in cash, renegotiate the price with the seller, or cancel under an appraisal contingency.',
+    whyItMatters: 'If you offer $320,000 but the house appraises at $300,000, the lender bases the loan on $300,000. Without an appraisal contingency, you would have to bring an extra $20,000 cash to closing.',
+    questionsToAsk: [
+      'Does my offer include an appraisal contingency protecting my earnest money deposit?',
+      'Which comparable sales did the appraiser use to value the property?',
+      'Can we submit a Reconsideration of Value (ROV) if the report contains factual errors?'
+    ],
+    recommendedActions: [
+      'Keep the appraisal contingency in your contract to protect your earnest money.',
+      'Verify that the appraiser recorded the correct bedroom/bathroom count and square footage.',
+      'Negotiate a price reduction or split the difference with the seller if the appraisal comes in low.'
+    ],
+    officialSourceLabel: 'CFPB - Home Appraisal Guide',
+    officialSourceUrl: 'https://www.consumerfinance.gov/owning-a-home/',
+    lastUpdated: 'October 2024'
+  },
+  {
+    id: 'negociacion-vendedor',
+    category: 'Buying Process',
+    title: 'Smart Negotiation with the Seller',
+    subtitle: 'Strategies to secure closing credits, repairs, and favorable terms.',
+    summary: 'Buying a home is about more than price; contingencies, timelines, and seller concessions define a smart deal.',
+    explanation: 'Negotiation does not end when your initial offer is accepted. After the home inspection and appraisal, you have a window to negotiate seller concessions toward closing costs, price reductions, or repairs completed by licensed contractors prior to closing.',
+    whyItMatters: 'Securing $5,000 to $10,000 in seller credits directly reduces the cash you need to bring to closing, preserving your personal savings for emergencies.',
+    questionsToAsk: [
+      'How many days has the property been on the market and how motivated is the seller?',
+      'Is it better to ask for a closing cost credit so I can hire my own trusted contractors?',
+      'What is the maximum seller concession percentage allowed by my loan program?'
+    ],
+    recommendedActions: [
+      'Prefer closing credits or price reductions over asking the seller to perform rushed repairs.',
+      'Support repair requests with written estimates from licensed professionals.',
+      'Work with a buyer’s agent who actively protects your financial bottom line.'
+    ],
+    officialSourceLabel: 'CFPB - Negotiating Loan and Purchase Terms',
+    officialSourceUrl: 'https://www.consumerfinance.gov/owning-a-home/',
+    lastUpdated: 'October 2024'
+  },
+  {
+    id: 'loan-estimate',
+    category: 'Official Documents',
+    title: 'The Loan Estimate',
+    subtitle: 'The most important 3-page document when shopping for a mortgage.',
+    summary: 'Federally standardized form that every lender must give you so you can compare loan offers apples-to-apples.',
+    explanation: 'By CFPB regulation, lenders must issue a Loan Estimate within 3 business days of receiving your 6 key application pieces. It clearly spells out the interest rate, projected monthly payment, closing costs, and whether your rate is locked.',
+    whyItMatters: 'Because every lender must use the exact same format, you can place three Loan Estimates side-by-side and immediately spot junk fees or inflated rates.',
+    questionsToAsk: [
+      'Is the interest rate officially locked, and when does the rate lock expire?',
+      'Do Section A Origination Charges include discount points?',
+      'What is the Annual Percentage Rate (APR) and why does it differ from the note rate?'
+    ],
+    recommendedActions: [
+      'Request Loan Estimates from at least 3 lenders within the same week to compare fairly.',
+      'Scrutinize Section A (Origination Charges), which represents the lender’s direct fees.',
+      'Check Page 3 to compare the APR and Total Interest Percentage (TIP).'
+    ],
+    officialSourceLabel: 'CFPB - Interactive Loan Estimate Explorer',
+    officialSourceUrl: 'https://www.consumerfinance.gov/owning-a-home/loan-estimate/',
+    lastUpdated: 'October 2024'
+  },
+  {
+    id: 'closing-disclosure',
+    category: 'Official Documents',
+    title: 'The Closing Disclosure',
+    subtitle: 'The mandatory 3-day rule to verify every final dollar before signing.',
+    summary: '5-page legal document containing the exact final numbers you will sign at the closing table.',
+    explanation: 'Federal law requires your lender to deliver the Closing Disclosure at least 3 business days before closing. You must compare it carefully against your most recent Loan Estimate to ensure no unauthorized fees were added.',
+    whyItMatters: 'This is your final legal window to pause and correct any discrepancies in interest rate, down payment, seller credits, or escrow calculations.',
+    questionsToAsk: [
+      'Why did any closing cost line item increase compared to the Loan Estimate?',
+      'Does the final "Cash to Close" match the exact amount I have ready in my bank account?',
+      'Are my earnest money deposit and agreed seller credits properly credited?'
+    ],
+    recommendedActions: [
+      'Use the full 3-day review period to read every page without rushing.',
+      'If any figure looks wrong, call your loan officer and settlement agent immediately before closing day.',
+      'Keep a permanent digital and paper copy for your future tax records.'
+    ],
+    officialSourceLabel: 'CFPB - Closing Disclosure Explorer',
+    officialSourceUrl: 'https://www.consumerfinance.gov/owning-a-home/closing-disclosure/',
+    lastUpdated: 'October 2024'
+  },
+  {
+    id: 'casas-nuevas-constructores',
+    category: 'Housing Options',
+    title: 'New Construction & Builder Incentives',
+    subtitle: 'Attractive rate buydowns and credits that require independent review.',
+    summary: 'Builders often offer rate buydowns or closing credits, but you still need independent representation and inspections.',
+    explanation: 'Homebuilders frequently attract buyers by offering interest rate buydowns or $10,000–$20,000 toward closing costs if you use their affiliated lender. While these incentives can be valuable, base prices and design upgrades can add up quickly.',
+    whyItMatters: 'The sales representative in the model home legally represents the builder, not you. You need your own buyer’s agent and your own independent home inspector to verify construction quality.',
+    questionsToAsk: [
+      'What is included in the base price vs. lot premiums and design center upgrades?',
+      'What structural and mechanical warranties are included (e.g., 1-2-10 year warranty)?',
+      'Can I hire an independent inspector for pre-drywall and final walkthrough inspections?'
+    ],
+    recommendedActions: [
+      'Bring your own buyer’s agent on your very first visit to the builder’s model center.',
+      'Hire an independent inspector at pre-drywall stage and before final closing.',
+      'Compare the builder’s lender quote against an outside lender to verify that the incentive is truly a net savings.'
+    ],
+    officialSourceLabel: 'FTC - Consumer Advice on Home Buying',
+    officialSourceUrl: 'https://consumer.ftc.gov/',
+    lastUpdated: 'October 2024'
+  },
+  {
+    id: 'errores-comunes-compradores',
+    category: 'Preventive Education',
+    title: 'The 10 Most Costly Homebuyer Mistakes',
+    subtitle: 'What you must never do while in the middle of buying a house.',
+    summary: 'Learn from common pitfalls to protect your savings, your peace of mind, and your final mortgage approval.',
+    explanation: 'Many buyers lose their dream home or suffer financial stress due to avoidable mistakes like financing furniture or a car before closing, switching jobs mid-process, skipping the home inspection, or draining every dollar of savings with zero emergency reserves.',
+    whyItMatters: 'Buying a home is likely the largest financial commitment of your life. Avoiding these traps ensures a smooth closing and sustainable homeownership.',
+    questionsToAsk: [
+      'Will I still have 3 to 6 months of living expenses saved after paying the down payment and closing costs?',
+      'Have I checked with my loan officer before making any unusual bank transfers?',
+      'Am I buying this home because the numbers make sense for my budget, or out of emotion?'
+    ],
+    recommendedActions: [
+      'Do not finance furniture, cars, or open new credit cards until after closing and keys are in hand.',
+      'Avoid undocumented cash deposits into your bank accounts during underwriting.',
+      'Follow Perquin de León’s guiding principle: "Don’t buy just because the bank approves you. Buy because the numbers make sense for you."'
+    ],
+    officialSourceLabel: 'CFPB - Homebuyer Checklist & Resources',
+    officialSourceUrl: 'https://www.consumerfinance.gov/owning-a-home/',
+    lastUpdated: 'October 2024'
+  }
+];
+
+export function getEducationalArticles(lang: Language = 'es'): EducationalArticle[] {
+  return lang === 'en' ? EDUCATIONAL_ARTICLES_EN : EDUCATIONAL_ARTICLES;
+}

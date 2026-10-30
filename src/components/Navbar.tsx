@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Menu, X, FileText, Calculator, CheckSquare, HelpCircle, BookOpen, Download } from 'lucide-react';
+import { Menu, X, Calculator, CheckSquare, HelpCircle, BookOpen, Download, Globe } from 'lucide-react';
 import { APP_CONFIG } from '../data/config';
+import { useLanguage } from '../context/LanguageContext';
 
 interface NavbarProps {
   onNavigate: (sectionId: string) => void;
@@ -9,14 +10,16 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onOpenPdf }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { lang, setLang } = useLanguage();
+  const isEn = lang === 'en';
 
   const navItems = [
-    { id: 'inicio', label: 'Inicio' },
-    { id: 'diagnostico', label: 'Mi Diagnóstico', icon: HelpCircle },
-    { id: 'calculadora', label: 'Calculadora', icon: Calculator },
-    { id: 'checklist', label: 'Mi Checklist', icon: CheckSquare },
-    { id: 'asistencia', label: 'Ayuda para Comprar', icon: HelpCircle },
-    { id: 'biblioteca', label: 'Recursos', icon: BookOpen },
+    { id: 'inicio', label: isEn ? 'Home' : 'Inicio' },
+    { id: 'diagnostico', label: isEn ? 'My Assessment' : 'Mi Diagnóstico', icon: HelpCircle },
+    { id: 'calculadora', label: isEn ? 'Calculator' : 'Calculadora', icon: Calculator },
+    { id: 'checklist', label: isEn ? 'My Checklist' : 'Mi Checklist', icon: CheckSquare },
+    { id: 'asistencia', label: isEn ? 'Buyer Assistance' : 'Ayuda para Comprar', icon: HelpCircle },
+    { id: 'biblioteca', label: isEn ? 'Resources' : 'Recursos', icon: BookOpen },
   ];
 
   const handleNavClick = (id: string) => {
@@ -41,7 +44,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onOpenPdf }) => {
                 {APP_CONFIG.brandName}
               </span>
               <span className="text-xs text-[#C7E7A4] font-medium block">
-                Tu Ruta 2027
+                {isEn ? 'Your 2027 Roadmap' : 'Tu Ruta 2027'}
               </span>
             </div>
           </div>
@@ -59,22 +62,63 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onOpenPdf }) => {
             ))}
           </div>
 
-          {/* Header Action: Generate PDF */}
-          <div className="hidden sm:flex items-center space-x-3">
+          {/* Header Actions: Language Switcher & Generate PDF */}
+          <div className="hidden sm:flex items-center space-x-2.5">
+            {/* Language Switcher Pill */}
+            <div
+              role="group"
+              aria-label={isEn ? 'Change language' : 'Cambiar idioma'}
+              className="inline-flex items-center bg-[#0B1E30] border border-[#1C4368] rounded-lg p-1 text-xs font-bold"
+            >
+              <Globe className="w-3.5 h-3.5 text-[#C7E7A4] ml-1.5 mr-1" />
+              <button
+                type="button"
+                onClick={() => setLang('es')}
+                className={`px-2 py-1 rounded-md transition-colors ${
+                  !isEn
+                    ? 'bg-[#2B7A55] text-white shadow-xs'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+              >
+                ES
+              </button>
+              <button
+                type="button"
+                onClick={() => setLang('en')}
+                className={`px-2 py-1 rounded-md transition-colors ${
+                  isEn
+                    ? 'bg-[#2B7A55] text-white shadow-xs'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+              >
+                EN
+              </button>
+            </div>
+
             <button
               onClick={onOpenPdf}
               className="inline-flex items-center space-x-2 bg-[#2B7A55] hover:bg-[#36986A] text-white px-4 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition-all transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[#C7E7A4]"
             >
               <Download className="w-4 h-4 text-[#C7E7A4]" />
-              <span>Mi PDF</span>
+              <span>{isEn ? 'My PDF' : 'Mi PDF'}</span>
             </button>
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="flex sm:hidden">
+          {/* Mobile Language Toggle & Menu Button */}
+          <div className="flex items-center space-x-2 sm:hidden">
+            <button
+              type="button"
+              onClick={() => setLang(isEn ? 'es' : 'en')}
+              aria-label={isEn ? 'Switch to Spanish' : 'Cambiar a Inglés'}
+              className="inline-flex items-center space-x-1 bg-[#0B1E30] border border-[#C7E7A4]/40 text-[#C7E7A4] px-2.5 py-1.5 rounded-lg text-xs font-bold"
+            >
+              <Globe className="w-3.5 h-3.5" />
+              <span>{isEn ? 'ES' : 'EN'}</span>
+            </button>
+
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Abrir menú de navegación"
+              aria-label={isEn ? 'Open navigation menu' : 'Abrir menú de navegación'}
               className="p-2 rounded-md text-slate-300 hover:text-white hover:bg-[#1C4368] focus:outline-none focus:ring-2 focus:ring-[#C7E7A4]"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -86,6 +130,34 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onOpenPdf }) => {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-[#0B1E30] border-t border-[#1C4368] px-4 pt-3 pb-5 space-y-2">
+          {/* Mobile Language Selector Row */}
+          <div className="flex items-center justify-between px-3 py-2 bg-[#102C46] rounded-lg mb-2">
+            <span className="text-xs font-semibold text-slate-300 flex items-center space-x-1.5">
+              <Globe className="w-4 h-4 text-[#C7E7A4]" />
+              <span>{isEn ? 'Language / Idioma:' : 'Idioma / Language:'}</span>
+            </span>
+            <div className="inline-flex rounded-md bg-[#0B1E30] p-0.5 border border-[#1C4368]">
+              <button
+                type="button"
+                onClick={() => setLang('es')}
+                className={`px-3 py-1 rounded text-xs font-bold ${
+                  !isEn ? 'bg-[#2B7A55] text-white' : 'text-slate-400'
+                }`}
+              >
+                Español
+              </button>
+              <button
+                type="button"
+                onClick={() => setLang('en')}
+                className={`px-3 py-1 rounded text-xs font-bold ${
+                  isEn ? 'bg-[#2B7A55] text-white' : 'text-slate-400'
+                }`}
+              >
+                English
+              </button>
+            </div>
+          </div>
+
           {navItems.map((item) => (
             <button
               key={item.id}
@@ -105,7 +177,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onOpenPdf }) => {
               className="w-full flex items-center justify-center space-x-2 bg-[#2B7A55] hover:bg-[#36986A] text-white px-4 py-3 rounded-lg text-base font-semibold shadow"
             >
               <Download className="w-5 h-5 text-[#C7E7A4]" />
-              <span>Generar mi Plan en PDF</span>
+              <span>{isEn ? 'Generate My PDF Plan' : 'Generar mi Plan en PDF'}</span>
             </button>
           </div>
         </div>

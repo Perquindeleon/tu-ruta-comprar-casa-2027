@@ -1,3 +1,5 @@
+import { Language } from '../types';
+
 export interface FaqItem {
   question: string;
   answer: string;
@@ -29,3 +31,34 @@ export const FAQS: FaqItem[] = [
     answer: 'Sí. Existen múltiples programas hipotecarios con pagos iniciales desde el 3% (préstamos convencionales como HomeReady o Home Possible), 3.5% (préstamos FHA) o incluso 0% de pronto para veteranos (VA) o propiedades en zonas rurales elegibles (USDA). Además, existen programas estatales y locales de asistencia para el pronto (DPA).'
   }
 ];
+
+export const FAQS_EN: FaqItem[] = [
+  {
+    question: 'Why start preparing for 2027 now?',
+    answer: 'A successful home purchase in the United States is not improvised in two weeks. Building a strong credit profile, disputing report errors, paying down debt, and saving for both down payment and closing costs takes 12 to 24 months. Preparing ahead of time lets you negotiate from a position of financial strength.'
+  },
+  {
+    question: 'Does this app store my financial or credit information?',
+    answer: 'No. This tool operates under a strict zero-storage privacy policy. All calculations run locally in your own web browser. Nothing is saved to databases or shared with banks or real estate agencies. When you close or refresh the page, your inputs are cleared from memory.'
+  },
+  {
+    question: 'Do I have to pay or sign up to download my PDF plan?',
+    answer: 'No. Downloading your customized PDF plan is 100% free, instant, and does not require creating an account, logging in, or providing your email address.'
+  },
+  {
+    question: 'Why does the calculator include inspection, appraisal, and HOA fees?',
+    answer: 'Because many buyers make the mistake of budgeting only for the down payment and are caught off guard when they need thousands of dollars more for closing costs, inspections, moving, emergency reserves, and monthly HOA dues. This tool shows you the complete financial picture.'
+  },
+  {
+    question: 'What is the difference between the interest rate and the APR?',
+    answer: 'The interest rate is the annual percentage the lender charges for borrowing the principal. The APR (Annual Percentage Rate) is a broader measure that includes both the interest rate and additional lender fees (discount points, origination charges, etc.), helping you compare the true cost across lenders.'
+  },
+  {
+    question: 'Can I buy a house if I do not have 20% saved for a down payment?',
+    answer: 'Yes. There are multiple mortgage programs with down payments starting at 3% (Conventional loans like HomeReady or Home Possible), 3.5% (FHA loans), or even 0% down for veterans (VA) and eligible rural/suburban properties (USDA). In addition, state and local Down Payment Assistance (DPA) programs are available.'
+  }
+];
+
+export function getFaqs(lang: Language = 'es'): FaqItem[] {
+  return lang === 'en' ? FAQS_EN : FAQS;
+}

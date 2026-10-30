@@ -2,13 +2,10 @@ import React from 'react';
 import { 
   HelpCircle, 
   CheckCircle, 
-  AlertTriangle, 
-  Clock, 
   ArrowRight, 
   RotateCcw, 
   ShieldCheck,
-  Check,
-  Building
+  Check
 } from 'lucide-react';
 import { 
   DiagnosticAnswers, 
@@ -28,6 +25,7 @@ import {
   evaluateDiagnostic 
 } from '../data/questions';
 import { US_STATES } from '../data/config';
+import { useLanguage } from '../context/LanguageContext';
 
 interface DiagnosticModuleProps {
   answers: DiagnosticAnswers;
@@ -42,7 +40,9 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
   onReset,
   onContinueToCalculator,
 }) => {
-  const result: DiagnosticResult = evaluateDiagnostic(answers);
+  const { lang } = useLanguage();
+  const isEn = lang === 'en';
+  const result: DiagnosticResult = evaluateDiagnostic(answers, lang);
 
   const answeredCount = [
     answers.timeframe,
@@ -64,20 +64,26 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
       <div className="text-center mb-12">
         <div className="inline-flex items-center space-x-2 bg-[#F1F9EC] border border-[#C7E7A4] text-[#2B7A55] px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
           <HelpCircle className="w-4 h-4" />
-          <span>Módulo A: Evaluación Orientativa</span>
+          <span>{isEn ? 'Module A: Readiness Assessment' : 'Módulo A: Evaluación Orientativa'}</span>
         </div>
         <h2 className="text-2xl sm:text-4xl font-extrabold text-[#102C46] tracking-tight">
-          ¿Qué tan preparado estás para comprar una casa?
+          {isEn ? 'How ready are you to buy a house?' : '¿Qué tan preparado estás para comprar una casa?'}
         </h2>
         <p className="mt-3 text-slate-600 max-w-2xl mx-auto text-base">
-          Responde estas sencillas preguntas para identificar tus fortalezas y las áreas que necesitas fortalecer antes de iniciar el proceso formal de compra.
+          {isEn
+            ? 'Answer these simple questions to identify your strengths and the areas you need to strengthen before starting the formal buying process.'
+            : 'Responde estas sencillas preguntas para identificar tus fortalezas y las áreas que necesitas fortalecer antes de iniciar el proceso formal de compra.'}
         </p>
 
         {/* Progress Bar */}
         <div className="mt-6 max-w-md mx-auto">
           <div className="flex justify-between text-xs font-semibold text-slate-500 mb-1">
-            <span>Progreso del diagnóstico</span>
-            <span>{answeredCount} de {totalQuestions} respondidas ({progressPercent}%)</span>
+            <span>{isEn ? 'Assessment progress' : 'Progreso del diagnóstico'}</span>
+            <span>
+              {isEn
+                ? `${answeredCount} of ${totalQuestions} answered (${progressPercent}%)`
+                : `${answeredCount} de ${totalQuestions} respondidas (${progressPercent}%)`}
+            </span>
           </div>
           <div className="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
             <div 
@@ -95,7 +101,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
           {/* Question 1: Timeframe */}
           <div>
             <label className="block text-sm font-bold text-[#102C46] mb-2">
-              1. ¿Cuándo te gustaría comprar?
+              {isEn ? '1. When would you like to buy?' : '1. ¿Cuándo te gustaría comprar?'}
             </label>
             <div className="space-y-2">
               {TIMEFRAME_OPTIONS.map((opt) => {
@@ -112,9 +118,11 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
                     }`}
                   >
                     <div>
-                      <span>{opt.label}</span>
-                      {opt.sublabel && (
-                        <span className="block text-xs font-normal text-slate-500">{opt.sublabel}</span>
+                      <span>{isEn ? opt.labelEn : opt.label}</span>
+                      {(isEn ? opt.sublabelEn : opt.sublabel) && (
+                        <span className="block text-xs font-normal text-slate-500">
+                          {isEn ? opt.sublabelEn : opt.sublabel}
+                        </span>
                       )}
                     </div>
                     {isSelected && <Check className="w-4 h-4 text-[#2B7A55] shrink-0" />}
@@ -127,7 +135,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
           {/* Question 2: Credit Review */}
           <div>
             <label className="block text-sm font-bold text-[#102C46] mb-2">
-              2. ¿Has revisado tu crédito recientemente?
+              {isEn ? '2. Have you checked your credit recently?' : '2. ¿Has revisado tu crédito recientemente?'}
             </label>
             <div className="space-y-2">
               {CREDIT_REVIEW_OPTIONS.map((opt) => {
@@ -143,7 +151,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
                         : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
                     }`}
                   >
-                    <span>{opt.label}</span>
+                    <span>{isEn ? opt.labelEn : opt.label}</span>
                     {isSelected && <Check className="w-4 h-4 text-[#2B7A55] shrink-0" />}
                   </button>
                 );
@@ -154,7 +162,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
           {/* Question 3: Credit Situation */}
           <div>
             <label className="block text-sm font-bold text-[#102C46] mb-2">
-              3. ¿Cómo describirías tu situación crediticia?
+              {isEn ? '3. How would you describe your credit standing?' : '3. ¿Cómo describirías tu situación crediticia?'}
             </label>
             <div className="space-y-2">
               {CREDIT_SITUATION_OPTIONS.map((opt) => {
@@ -171,9 +179,11 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
                     }`}
                   >
                     <div>
-                      <span>{opt.label}</span>
-                      {opt.sublabel && (
-                        <span className="block text-xs font-normal text-slate-500">{opt.sublabel}</span>
+                      <span>{isEn ? opt.labelEn : opt.label}</span>
+                      {(isEn ? opt.sublabelEn : opt.sublabel) && (
+                        <span className="block text-xs font-normal text-slate-500">
+                          {isEn ? opt.sublabelEn : opt.sublabel}
+                        </span>
                       )}
                     </div>
                     {isSelected && <Check className="w-4 h-4 text-[#2B7A55] shrink-0" />}
@@ -186,7 +196,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
           {/* Question 4: Savings */}
           <div>
             <label className="block text-sm font-bold text-[#102C46] mb-2">
-              4. ¿Cuánto tienes ahorrado aproximadamente para comprar?
+              {isEn ? '4. About how much do you have saved to buy?' : '4. ¿Cuánto tienes ahorrado aproximadamente para comprar?'}
             </label>
             <div className="space-y-2">
               {SAVINGS_OPTIONS.map((opt) => {
@@ -203,9 +213,11 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
                     }`}
                   >
                     <div>
-                      <span>{opt.label}</span>
-                      {opt.sublabel && (
-                        <span className="block text-xs font-normal text-slate-500">{opt.sublabel}</span>
+                      <span>{isEn ? opt.labelEn : opt.label}</span>
+                      {(isEn ? opt.sublabelEn : opt.sublabel) && (
+                        <span className="block text-xs font-normal text-slate-500">
+                          {isEn ? opt.sublabelEn : opt.sublabel}
+                        </span>
                       )}
                     </div>
                     {isSelected && <Check className="w-4 h-4 text-[#2B7A55] shrink-0" />}
@@ -218,7 +230,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
           {/* Question 5: Debts */}
           <div>
             <label className="block text-sm font-bold text-[#102C46] mb-2">
-              5. ¿Tienes deudas mensuales activas?
+              {isEn ? '5. Do you have active monthly debts?' : '5. ¿Tienes deudas mensuales activas?'}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {DEBT_OPTIONS.map((opt) => {
@@ -234,7 +246,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
                         : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
                     }`}
                   >
-                    {opt.label}
+                    {isEn ? opt.labelEn : opt.label}
                   </button>
                 );
               })}
@@ -244,7 +256,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
           {/* Question 6: Budget calculation */}
           <div>
             <label className="block text-sm font-bold text-[#102C46] mb-2">
-              6. ¿Has calculado cuánto puedes pagar mensualmente por una vivienda?
+              {isEn ? '6. Have you calculated how much you can pay monthly for housing?' : '6. ¿Has calculado cuánto puedes pagar mensualmente por una vivienda?'}
             </label>
             <div className="grid grid-cols-2 gap-3">
               {YES_NO_OPTIONS.map((opt) => {
@@ -260,7 +272,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
                         : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
                     }`}
                   >
-                    {opt.label}
+                    {isEn ? opt.labelEn : opt.label}
                   </button>
                 );
               })}
@@ -270,7 +282,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
           {/* Question 7: Talked to lender */}
           <div>
             <label className="block text-sm font-bold text-[#102C46] mb-2">
-              7. ¿Has hablado con un prestamista hipotecario?
+              {isEn ? '7. Have you spoken with a mortgage lender?' : '7. ¿Has hablado con un prestamista hipotecario?'}
             </label>
             <div className="grid grid-cols-2 gap-3">
               {YES_NO_OPTIONS.map((opt) => {
@@ -286,7 +298,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
                         : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
                     }`}
                   >
-                    {opt.label}
+                    {isEn ? opt.labelEn : opt.label}
                   </button>
                 );
               })}
@@ -296,7 +308,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
           {/* Question 8: State */}
           <div>
             <label htmlFor="state-select" className="block text-sm font-bold text-[#102C46] mb-2">
-              8. ¿En qué estado quieres comprar?
+              {isEn ? '8. In which state do you want to buy?' : '8. ¿En qué estado quieres comprar?'}
             </label>
             <div className="relative">
               <select
@@ -305,7 +317,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
                 onChange={(e) => onUpdateAnswers({ state: e.target.value })}
                 className="w-full p-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-[#2B7A55] focus:border-[#2B7A55] shadow-sm"
               >
-                <option value="">-- Selecciona un estado --</option>
+                <option value="">{isEn ? '-- Select a state --' : '-- Selecciona un estado --'}</option>
                 {US_STATES.map((st) => (
                   <option key={st.code} value={st.code}>
                     {st.name} ({st.code})
@@ -318,13 +330,14 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
           {/* Question 9: County or City */}
           <div>
             <label htmlFor="county-city-input" className="block text-sm font-bold text-[#102C46] mb-2">
-              9. Condado o ciudad <span className="text-slate-400 font-normal">(Opcional)</span>
+              {isEn ? '9. County or City' : '9. Condado o ciudad'}{' '}
+              <span className="text-slate-400 font-normal">{isEn ? '(Optional)' : '(Opcional)'}</span>
             </label>
             <div className="relative">
               <input
                 id="county-city-input"
                 type="text"
-                placeholder="Ej. Miami-Dade, Houston, Dallas, Los Ángeles, etc."
+                placeholder={isEn ? 'e.g. Miami-Dade, Houston, Dallas, Los Angeles...' : 'Ej. Miami-Dade, Houston, Dallas, Los Ángeles, etc.'}
                 value={answers.countyOrCity || ''}
                 onChange={(e) => onUpdateAnswers({ countyOrCity: e.target.value })}
                 className="w-full p-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-[#2B7A55] focus:border-[#2B7A55] shadow-sm"
@@ -340,7 +353,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
               className="inline-flex items-center space-x-1.5 text-xs text-slate-500 hover:text-red-600 transition-colors"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reiniciar cuestionario</span>
+              <span>{isEn ? 'Reset questionnaire' : 'Reiniciar cuestionario'}</span>
             </button>
           </div>
         </div>
@@ -354,7 +367,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
                 {result.badge}
               </span>
               <span className="text-xs text-slate-400">
-                Resultado Orientativo
+                {isEn ? 'Guidance Result' : 'Resultado Orientativo'}
               </span>
             </div>
 
@@ -371,7 +384,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
             <div className="mb-6">
               <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center space-x-1.5">
                 <CheckCircle className="w-4 h-4 text-[#2B7A55]" />
-                <span>¿Por qué se muestra este resultado?</span>
+                <span>{isEn ? 'Why is this result shown?' : '¿Por qué se muestra este resultado?'}</span>
               </h4>
               <ul className="space-y-2 text-xs sm:text-sm text-slate-700">
                 {result.reasons.map((reason, idx) => (
@@ -387,7 +400,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
             <div className="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
               <h4 className="text-xs font-bold uppercase tracking-wider text-[#102C46] mb-2 flex items-center space-x-1.5">
                 <ArrowRight className="w-4 h-4 text-[#D5AD57]" />
-                <span>Acciones concretas recomendadas:</span>
+                <span>{isEn ? 'Concrete recommended actions:' : 'Acciones concretas recomendadas:'}</span>
               </h4>
               <ul className="space-y-2 text-xs text-slate-700">
                 {result.recommendations.map((rec, idx) => (
@@ -404,7 +417,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
               onClick={onContinueToCalculator}
               className="w-full flex items-center justify-center space-x-2 bg-[#2B7A55] hover:bg-[#36986A] text-white py-3.5 px-4 rounded-xl font-bold text-sm shadow transition-all transform hover:-translate-y-0.5"
             >
-              <span>PASAR A LA CALCULADORA DE COSTO REAL</span>
+              <span>{isEn ? 'CONTINUE TO REAL COST CALCULATOR' : 'PASAR A LA CALCULADORA DE COSTO REAL'}</span>
               <ArrowRight className="w-4 h-4 text-[#C7E7A4]" />
             </button>
           </div>
@@ -413,7 +426,10 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
           <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start space-x-2.5">
             <ShieldCheck className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
             <p>
-              <strong>Aviso de Transparencia:</strong> Este diagnóstico no inventa un puntaje de crédito FICO ni afirma que estés preaprobado para una hipoteca. Funciona sin solicitar números de Seguro Social ni datos financieros sensibles.
+              <strong>{isEn ? 'Transparency Notice:' : 'Aviso de Transparencia:'}</strong>{' '}
+              {isEn
+                ? 'This assessment does not invent a FICO score or claim you are pre-approved for a mortgage. It works without requesting Social Security numbers or sensitive financial data.'
+                : 'Este diagnóstico no inventa un puntaje de crédito FICO ni afirma que estés preaprobado para una hipoteca. Funciona sin solicitar números de Seguro Social ni datos financieros sensibles.'}
             </p>
           </div>
         </div>

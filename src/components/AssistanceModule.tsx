@@ -4,15 +4,12 @@ import {
   ExternalLink, 
   Search, 
   ShieldCheck, 
-  MapPin, 
   CheckCircle, 
-  AlertCircle,
-  HelpCircle,
   Info
 } from 'lucide-react';
 import { US_STATES } from '../data/config';
-import { getProgramsForState, NATIONAL_PROGRAMS } from '../data/programsData';
-import { AssistanceProgram } from '../types';
+import { getProgramsForState } from '../data/programsData';
+import { useLanguage } from '../context/LanguageContext';
 
 interface AssistanceModuleProps {
   selectedState?: string;
@@ -23,6 +20,8 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
   selectedState,
   onSelectState,
 }) => {
+  const { lang } = useLanguage();
+  const isEn = lang === 'en';
   const [filterAudience, setFilterAudience] = useState<'all' | 'first_time'>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -37,10 +36,10 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
     // Filter by search query
     if (searchTerm.trim().length > 0) {
       const term = searchTerm.toLowerCase();
-      const matchName = p.name.toLowerCase().includes(term);
+      const matchName = (isEn && p.nameEn ? p.nameEn : p.name).toLowerCase().includes(term);
       const matchAgency = p.agency.toLowerCase().includes(term);
-      const matchDesc = p.description.toLowerCase().includes(term);
-      const matchJurisdiction = p.jurisdiction.toLowerCase().includes(term);
+      const matchDesc = (isEn && p.descriptionEn ? p.descriptionEn : p.description).toLowerCase().includes(term);
+      const matchJurisdiction = (isEn && p.jurisdictionEn ? p.jurisdictionEn : p.jurisdiction).toLowerCase().includes(term);
       return matchName || matchAgency || matchDesc || matchJurisdiction;
     }
 
@@ -55,13 +54,15 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
       <div className="text-center mb-10">
         <div className="inline-flex items-center space-x-2 bg-[#F1F9EC] border border-[#C7E7A4] text-[#2B7A55] px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
           <Building2 className="w-4 h-4" />
-          <span>Módulo D: Recursos y Subvenciones Oficiales</span>
+          <span>{isEn ? 'Module D: Official Grants & Resources' : 'Módulo D: Recursos y Subvenciones Oficiales'}</span>
         </div>
         <h2 className="text-2xl sm:text-4xl font-extrabold text-[#102C46] tracking-tight">
-          ¿Puedes recibir ayuda para comprar tu primera casa?
+          {isEn ? 'Can you get help to buy your first home?' : '¿Puedes recibir ayuda para comprar tu primera casa?'}
         </h2>
         <p className="mt-3 text-slate-600 max-w-3xl mx-auto text-base">
-          Localiza programas de asistencia para el pronto (DPA), asesoría de vivienda aprobada por el gobierno federal y beneficios hipotecarios en tu estado y a nivel nacional.
+          {isEn
+            ? 'Find down payment assistance (DPA) programs, HUD-approved housing counseling, and federal and state mortgage benefits.'
+            : 'Localiza programas de asistencia para el pronto (DPA), asesoría de vivienda aprobada por el gobierno federal y beneficios hipotecarios en tu estado y a nivel nacional.'}
         </p>
       </div>
 
@@ -72,7 +73,7 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
           {/* State selector */}
           <div className="md:col-span-5">
             <label htmlFor="assistance-state-select" className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-              Estado de Búsqueda
+              {isEn ? 'Search State' : 'Estado de Búsqueda'}
             </label>
             <div className="relative">
               <select
@@ -81,7 +82,9 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
                 onChange={(e) => onSelectState(e.target.value)}
                 className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2B7A55]"
               >
-                <option value="">Todos los Estados (Recursos Federales)</option>
+                <option value="">
+                  {isEn ? 'All States (Federal Resources)' : 'Todos los Estados (Recursos Federales)'}
+                </option>
                 {US_STATES.map((st) => (
                   <option key={st.code} value={st.code}>
                     {st.name} ({st.code})
@@ -94,7 +97,7 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
           {/* First time vs repeat buyer filter */}
           <div className="md:col-span-3">
             <label htmlFor="audience-filter-select" className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-              Tipo de Comprador
+              {isEn ? 'Buyer Type' : 'Tipo de Comprador'}
             </label>
             <select
               id="audience-filter-select"
@@ -102,15 +105,15 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
               onChange={(e) => setFilterAudience(e.target.value as 'all' | 'first_time')}
               className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2B7A55]"
             >
-              <option value="all">Todos los Compradores</option>
-              <option value="first_time">Primerizo (First-Time Buyer)</option>
+              <option value="all">{isEn ? 'All Homebuyers' : 'Todos los Compradores'}</option>
+              <option value="first_time">{isEn ? 'First-Time Buyer' : 'Primerizo (First-Time Buyer)'}</option>
             </select>
           </div>
 
           {/* Search keyword / county */}
           <div className="md:col-span-4">
             <label htmlFor="keyword-search-input" className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-              Condado o Palabra Clave
+              {isEn ? 'County or Keyword' : 'Condado o Palabra Clave'}
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -119,7 +122,7 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
               <input
                 id="keyword-search-input"
                 type="text"
-                placeholder="Ej. Condado, DPA, HUD, FHA..."
+                placeholder={isEn ? 'e.g. County, DPA, HUD, FHA...' : 'Ej. Condado, DPA, HUD, FHA...'}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-9 pr-3.5 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2B7A55]"
@@ -130,12 +133,18 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
 
         {selectedStateName && (
           <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
-            <span>Mostrando programas específicos para <strong>{selectedStateName}</strong> y recursos federales.</span>
+            <span>
+              {isEn ? (
+                <>Showing specific programs for <strong>{selectedStateName}</strong> plus federal resources.</>
+              ) : (
+                <>Mostrando programas específicos para <strong>{selectedStateName}</strong> y recursos federales.</>
+              )}
+            </span>
             <button
               onClick={() => onSelectState('')}
               className="text-[#2B7A55] hover:underline font-semibold"
             >
-              Ver todos los estados
+              {isEn ? 'View all states' : 'Ver todos los estados'}
             </button>
           </div>
         )}
@@ -152,16 +161,19 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
               {/* Badge & Agency */}
               <div className="flex items-center justify-between gap-2">
                 <span className="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#102C46] text-[#C7E7A4]">
-                  {prog.jurisdiction}
+                  {isEn && prog.jurisdictionEn ? prog.jurisdictionEn : prog.jurisdiction}
                 </span>
                 <span className="text-[11px] text-slate-500 font-medium flex items-center space-x-1">
                   <CheckCircle className="w-3.5 h-3.5 text-[#2B7A55]" />
-                  <span>Verificado: {prog.lastVerified}</span>
+                  <span>
+                    {isEn ? 'Verified: ' : 'Verificado: '}
+                    {isEn && prog.lastVerifiedEn ? prog.lastVerifiedEn : prog.lastVerified}
+                  </span>
                 </span>
               </div>
 
               <h3 className="text-base sm:text-lg font-bold text-[#102C46] leading-snug">
-                {prog.name}
+                {isEn && prog.nameEn ? prog.nameEn : prog.name}
               </h3>
 
               <div className="text-xs font-semibold text-[#2B7A55]">
@@ -169,14 +181,14 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
               </div>
 
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                {prog.description}
+                {isEn && prog.descriptionEn ? prog.descriptionEn : prog.description}
               </p>
             </div>
 
             {/* Card Action */}
             <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
               <span className="text-xs text-slate-400">
-                Fuente Gubernamental Oficial
+                {isEn ? 'Official Government Source' : 'Fuente Gubernamental Oficial'}
               </span>
 
               <a
@@ -185,7 +197,7 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
                 rel="noopener noreferrer"
                 className="inline-flex items-center space-x-1.5 text-xs font-bold text-[#2B7A55] hover:text-[#36986A] bg-[#F1F9EC] hover:bg-[#C7E7A4]/40 px-3 py-2 rounded-lg transition-colors"
               >
-                <span>Portal Oficial</span>
+                <span>{isEn ? 'Official Portal' : 'Portal Oficial'}</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
             </div>
@@ -196,9 +208,13 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
       {filteredPrograms.length === 0 && (
         <div className="bg-white rounded-2xl p-10 text-center border border-slate-200">
           <Info className="w-8 h-8 text-slate-400 mx-auto mb-3" />
-          <h4 className="font-bold text-[#102C46]">No se encontraron programas con los filtros seleccionados</h4>
+          <h4 className="font-bold text-[#102C46]">
+            {isEn ? 'No programs found with the selected filters' : 'No se encontraron programas con los filtros seleccionados'}
+          </h4>
           <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
-            Intenta limpiar el término de búsqueda o consultar el directorio centralizado de HUD para tu estado.
+            {isEn
+              ? 'Try clearing your search term or checking the centralized HUD directory for your state.'
+              : 'Intenta limpiar el término de búsqueda o consultar el directorio centralizado de HUD para tu estado.'}
           </p>
           <a
             href="https://www.hud.gov/states"
@@ -206,7 +222,7 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
             rel="noopener noreferrer"
             className="inline-flex items-center space-x-1.5 mt-4 px-4 py-2 bg-[#2B7A55] text-white rounded-lg text-xs font-bold"
           >
-            <span>Ver Directorio Estatal de HUD</span>
+            <span>{isEn ? 'View HUD State Directory' : 'Ver Directorio Estatal de HUD'}</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>
@@ -216,10 +232,14 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
       <div className="mt-12 bg-gradient-to-r from-[#102C46] to-[#1C4368] rounded-2xl p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md">
         <div className="space-y-1 text-center sm:text-left">
           <h4 className="text-lg font-bold text-white">
-            ¿Buscas el programa de vivienda de tu condado específico?
+            {isEn
+              ? 'Looking for housing assistance in your specific county?'
+              : '¿Buscas el programa de vivienda de tu condado específico?'}
           </h4>
           <p className="text-xs sm:text-sm text-slate-300 max-w-2xl">
-            HUD mantiene una base de datos pública y actualizada con todas las agencias de financiación local de vivienda y asesores certificados en los 50 estados.
+            {isEn
+              ? 'HUD maintains an updated public database of all local housing finance agencies and certified counselors across all 50 states.'
+              : 'HUD mantiene una base de datos pública y actualizada con todas las agencias de financiación local de vivienda y asesores certificados en los 50 estados.'}
           </p>
         </div>
 
@@ -229,7 +249,7 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
           rel="noopener noreferrer"
           className="inline-flex items-center space-x-2 bg-[#C7E7A4] hover:bg-white text-[#102C46] px-5 py-3 rounded-xl text-xs sm:text-sm font-bold shadow transition-all shrink-0"
         >
-          <span>Abrir Directorio HUD</span>
+          <span>{isEn ? 'Open HUD Directory' : 'Abrir Directorio HUD'}</span>
           <ExternalLink className="w-4 h-4 text-[#102C46]" />
         </a>
       </div>
@@ -238,7 +258,10 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
       <div className="mt-6 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start space-x-2.5">
         <ShieldCheck className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
         <p>
-          <strong>Importante sobre Asistencia Gubernamental:</strong> No inventamos montos de subvención ficticios ni afirmamos que califiques de forma automática. La elegibilidad para programas de asistencia para el pronto (DPA) depende de ingresos familiares, límites del condado, puntaje de crédito y disponibilidad de fondos presupuestarios de cada organismo. Contacta siempre a la agencia oficial o a un asesor aprobado por HUD.
+          <strong>{isEn ? 'Important Note on Government Assistance:' : 'Importante sobre Asistencia Gubernamental:'}</strong>{' '}
+          {isEn
+            ? 'We do not invent grant figures or claim automatic qualification. Eligibility for Down Payment Assistance (DPA) programs depends on household income, county limits, credit score, and agency budget availability. Always contact the official agency or a HUD-approved counselor directly.'
+            : 'No inventamos montos de subvención ficticios ni afirmamos que califiques de forma automática. La elegibilidad para programas de asistencia para el pronto (DPA) depende de ingresos familiares, límites del condado, puntaje de crédito y disponibilidad de fondos presupuestarios de cada organismo. Contacta siempre a la agencia oficial o a un asesor aprobado por HUD.'}
         </p>
       </div>
     </section>

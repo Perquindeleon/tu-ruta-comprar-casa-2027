@@ -4,8 +4,6 @@ import {
   Mail, 
   CheckCircle, 
   AlertCircle, 
-  ShieldCheck, 
-  Lock, 
   FileText, 
   Send,
   Loader2,
@@ -22,6 +20,7 @@ import {
 import { generatePlanPdf } from '../utils/pdfGenerator';
 import { isValidEmail } from '../utils/validation';
 import { APP_CONFIG } from '../data/config';
+import { useLanguage } from '../context/LanguageContext';
 
 interface PdfExportModuleProps {
   answers: DiagnosticAnswers;
@@ -40,6 +39,8 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
   rateScenarios,
   completedChecklistIds,
 }) => {
+  const { lang } = useLanguage();
+  const isEn = lang === 'en';
   const [includeFinancials, setIncludeFinancials] = useState(true);
   const [email, setEmail] = useState('');
   const [confirmEmail, setConfirmEmail] = useState('');
@@ -53,6 +54,10 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
     message: string;
   }>({ type: null, message: '' });
 
+  const pdfFilename = isEn
+    ? 'My_Homebuying_Plan_2027_Perquin_de_Leon.pdf'
+    : 'Mi_Plan_Comprar_Casa_2027_Perquin_de_Leon.pdf';
+
   const handleDownloadPdf = () => {
     try {
       const doc = generatePlanPdf(
@@ -62,11 +67,15 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
         calculatorOutputs,
         rateScenarios,
         completedChecklistIds,
-        { includeFinancials }
+        { includeFinancials, lang }
       );
-      doc.save('Mi_Plan_Comprar_Casa_2027_Perquin_de_Leon.pdf');
+      doc.save(pdfFilename);
     } catch {
-      alert('Hubo un problema al generar el documento PDF. Por favor verifica tus datos e inténtalo de nuevo.');
+      alert(
+        isEn
+          ? 'There was an issue generating the PDF document. Please verify your inputs and try again.'
+          : 'Hubo un problema al generar el documento PDF. Por favor verifica tus datos e inténtalo de nuevo.'
+      );
     }
   };
 
@@ -76,25 +85,40 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
 
     // Honeypot check
     if (honeypot.trim().length > 0) {
-      setSendResult({ type: 'error', message: 'Solicitud rechazada.' });
+      setSendResult({
+        type: 'error',
+        message: isEn ? 'Request rejected.' : 'Solicitud rechazada.'
+      });
       return;
     }
 
     // Email validation
     if (!isValidEmail(email)) {
-      setSendResult({ type: 'error', message: 'Por favor introduce un correo electrónico válido.' });
+      setSendResult({
+        type: 'error',
+        message: isEn
+          ? 'Please enter a valid email address.'
+          : 'Por favor introduce un correo electrónico válido.'
+      });
       return;
     }
 
     if (email.trim().toLowerCase() !== confirmEmail.trim().toLowerCase()) {
-      setSendResult({ type: 'error', message: 'Las dos direcciones de correo electrónico no coinciden.' });
+      setSendResult({
+        type: 'error',
+        message: isEn
+          ? 'The two email addresses do not match.'
+          : 'Las dos direcciones de correo electrónico no coinciden.'
+      });
       return;
     }
 
     if (!serviceConsent) {
       setSendResult({
         type: 'error',
-        message: 'Debes aceptar los términos de procesamiento seguro para autorizar el envío del documento.',
+        message: isEn
+          ? 'You must accept the secure delivery processing terms to authorize sending the document.'
+          : 'Debes aceptar los términos de procesamiento seguro para autorizar el envío del documento.',
       });
       return;
     }
@@ -110,7 +134,7 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
         calculatorOutputs,
         rateScenarios,
         completedChecklistIds,
-        { includeFinancials }
+        { includeFinancials, lang }
       );
 
       // Get base64 string without data-uri prefix
@@ -125,7 +149,7 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
         body: JSON.stringify({
           email: email.trim(),
           pdfBase64: pdfBase64,
-          filename: 'Mi_Plan_Comprar_Casa_2027_Perquin_de_Leon.pdf',
+          filename: pdfFilename,
           honeypot: honeypot,
           marketingConsent: marketingConsent,
         }),
@@ -136,23 +160,31 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
       if (response.ok && data.success) {
         setSendResult({
           type: 'success',
-          message: '¡Excelente! Tu plan en PDF ha sido enviado a tu correo. Revisa tu bandeja de entrada o carpeta de promociones.',
+          message: isEn
+            ? 'Success! Your PDF plan has been sent to your email. Check your inbox or promotions folder.'
+            : '¡Excelente! Tu plan en PDF ha sido enviado a tu correo. Revisa tu bandeja de entrada o carpeta de promociones.',
         });
       } else if (data.configured === false) {
         setSendResult({
           type: 'warning',
-          message: data.message || 'El servicio de correo aún no está configurado en el servidor. Puedes descargar tu PDF directamente usando el botón verde de descarga.',
+          message: isEn
+            ? 'Email service is not yet configured on the server. However, you can download your PDF directly to your device using the green download button above.'
+            : (data.message || 'El servicio de correo aún no está configurado en el servidor. Puedes descargar tu PDF directamente usando el botón verde de descarga.'),
         });
       } else {
         setSendResult({
           type: 'error',
-          message: data.error || data.message || 'No fue posible completar el envío en este momento. Puedes descargar tu PDF directamente con el botón de descarga.',
+          message: isEn
+            ? 'Unable to complete email delivery right now. Please download your PDF directly using the download button above.'
+            : (data.error || data.message || 'No fue posible completar el envío en este momento. Puedes descargar tu PDF directamente con el botón de descarga.'),
         });
       }
     } catch {
       setSendResult({
         type: 'warning',
-        message: 'No se pudo conectar con el servidor de correo o la función backend no está disponible en este entorno local. Por favor descarga tu PDF directamente a tu dispositivo.',
+        message: isEn
+          ? 'Could not connect to the email server. Please download your PDF directly to your device using the green button above.'
+          : 'No se pudo conectar con el servidor de correo o la función backend no está disponible en este entorno local. Por favor descarga tu PDF directamente a tu dispositivo.',
       });
     } finally {
       setIsSending(false);
@@ -165,13 +197,15 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
       <div className="text-center mb-10">
         <div className="inline-flex items-center space-x-2 bg-[#F1F9EC] border border-[#C7E7A4] text-[#2B7A55] px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
           <FileText className="w-4 h-4" />
-          <span>Tu Documento Final</span>
+          <span>{isEn ? 'Your Final Document' : 'Tu Documento Final'}</span>
         </div>
         <h2 className="text-2xl sm:text-4xl font-extrabold text-[#102C46] tracking-tight">
-          Genera tu Plan Personalizado en PDF
+          {isEn ? 'Generate Your Personalized PDF Plan' : 'Genera tu Plan Personalizado en PDF'}
         </h2>
         <p className="mt-3 text-slate-600 max-w-2xl mx-auto text-base">
-          Reúne tu diagnóstico, el desglose de costos, la simulación de tasas, tu checklist y las preguntas clave en un reporte profesional listo para guardar o imprimir.
+          {isEn
+            ? 'Compile your assessment, cost breakdown, rate simulation, checklist, and key questions into a professional report ready to save or print.'
+            : 'Reúne tu diagnóstico, el desglose de costos, la simulación de tasas, tu checklist y las preguntas clave en un reporte profesional listo para guardar o imprimir.'}
         </p>
       </div>
 
@@ -180,13 +214,15 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
         <div className="bg-gradient-to-r from-[#102C46] to-[#1C4368] p-6 sm:p-8 text-white text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="space-y-1">
             <span className="text-xs font-extrabold uppercase tracking-wider text-[#C7E7A4]">
-              Descarga Inmediata y Gratuita
+              {isEn ? 'Instant & Free Download' : 'Descarga Inmediata y Gratuita'}
             </span>
             <h3 className="text-xl sm:text-2xl font-bold text-white">
-              Mi Plan para Comprar Casa en 2027
+              {isEn ? 'My Plan to Buy a Home in 2027' : 'Mi Plan para Comprar Casa en 2027'}
             </h3>
             <p className="text-xs text-slate-300">
-              Formato Carta (Letter), diseño profesional con colores de marca, tablas detalladas y enlaces oficiales.
+              {isEn
+                ? 'US Letter format, professional brand layout, detailed tables, and official government links.'
+                : 'Formato Carta (Letter), diseño profesional con colores de marca, tablas detalladas y enlaces oficiales.'}
             </p>
           </div>
 
@@ -196,7 +232,7 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
             className="inline-flex items-center justify-center space-x-3 bg-[#2B7A55] hover:bg-[#36986A] text-white px-7 py-4 rounded-xl text-base font-bold shadow-lg shadow-[#2B7A55]/30 transition-all transform hover:-translate-y-0.5 shrink-0"
           >
             <Download className="w-5 h-5 text-[#C7E7A4]" />
-            <span>DESCARGAR MI PLAN EN PDF</span>
+            <span>{isEn ? 'DOWNLOAD MY PDF PLAN' : 'DESCARGAR MI PLAN EN PDF'}</span>
           </button>
         </div>
 
@@ -207,15 +243,21 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">
-                Modalidad del Documento
+                {isEn ? 'Document Mode' : 'Modalidad del Documento'}
               </span>
               <h4 className="text-sm font-bold text-[#102C46]">
-                {includeFinancials ? 'Incluir cifras financieras calculadas' : 'Versión educativa sin cifras personales'}
+                {includeFinancials
+                  ? (isEn ? 'Include calculated financial figures' : 'Incluir cifras financieras calculadas')
+                  : (isEn ? 'Educational version without personal figures' : 'Versión educativa sin cifras personales')}
               </h4>
               <p className="text-xs text-slate-500 mt-0.5">
                 {includeFinancials 
-                  ? 'El PDF contendrá los números de precio, cuota mensual, pronto y costos de cierre que introdujiste.' 
-                  : 'El PDF contendrá la metodología y checklist, ocultando los montos en dólares.'}
+                  ? (isEn
+                      ? 'The PDF will contain the home price, monthly payment, down payment, and closing costs you entered.'
+                      : 'El PDF contendrá los números de precio, cuota mensual, pronto y costos de cierre que introdujiste.') 
+                  : (isEn
+                      ? 'The PDF will contain the methodology and checklist while hiding dollar amounts.'
+                      : 'El PDF contendrá la metodología y checklist, ocultando los montos en dólares.')}
               </p>
             </div>
 
@@ -229,7 +271,11 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
               }`}
             >
               {includeFinancials ? <Eye className="w-4 h-4 text-[#2B7A55]" /> : <EyeOff className="w-4 h-4" />}
-              <span>{includeFinancials ? 'Cambiar a versión sin cifras' : 'Cambiar a versión completa'}</span>
+              <span>
+                {includeFinancials
+                  ? (isEn ? 'Switch to version without figures' : 'Cambiar a versión sin cifras')
+                  : (isEn ? 'Switch to full version' : 'Cambiar a versión completa')}
+              </span>
             </button>
           </div>
 
@@ -239,11 +285,13 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
               <div className="flex items-center justify-center sm:justify-start space-x-2 text-[#2B7A55] mb-2">
                 <Mail className="w-5 h-5" />
                 <h3 className="text-lg font-bold text-[#102C46]">
-                  ¿Quieres recibir tu plan en tu correo?
+                  {isEn ? 'Want to receive your plan by email?' : '¿Quieres recibir tu plan en tu correo?'}
                 </h3>
               </div>
               <p className="text-xs text-slate-600 mb-6">
-                Te enviaremos el archivo PDF generado como un archivo adjunto directo. Sin cuentas de usuario ni registro obligatorio.
+                {isEn
+                  ? 'We will send your generated PDF file as a direct attachment. No user account or mandatory registration required.'
+                  : 'Te enviaremos el archivo PDF generado como un archivo adjunto directo. Sin cuentas de usuario ni registro obligatorio.'}
               </p>
 
               <form onSubmit={handleSendEmail} className="space-y-4">
@@ -260,13 +308,13 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
 
                 <div>
                   <label htmlFor="email-input" className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                    Dirección de Correo Electrónico
+                    {isEn ? 'Email Address' : 'Dirección de Correo Electrónico'}
                   </label>
                   <input
                     id="email-input"
                     type="email"
                     required
-                    placeholder="ejemplo@correo.com"
+                    placeholder={isEn ? 'you@example.com' : 'ejemplo@correo.com'}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-[#2B7A55]"
@@ -275,13 +323,13 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
 
                 <div>
                   <label htmlFor="confirm-email-input" className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                    Confirmar Dirección de Correo Electrónico
+                    {isEn ? 'Confirm Email Address' : 'Confirmar Dirección de Correo Electrónico'}
                   </label>
                   <input
                     id="confirm-email-input"
                     type="email"
                     required
-                    placeholder="Confirma tu correo electrónico"
+                    placeholder={isEn ? 'Confirm your email address' : 'Confirma tu correo electrónico'}
                     value={confirmEmail}
                     onChange={(e) => setConfirmEmail(e.target.value)}
                     className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-[#2B7A55]"
@@ -298,7 +346,10 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
                       className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#2B7A55] focus:ring-[#2B7A55]"
                     />
                     <span className="text-xs text-slate-600 leading-normal">
-                      <strong>Consentimiento obligatorio:</strong> Autorizo el envío del PDF a través del servicio de entrega seguro externo Resend. Entiendo que ningún dato financiero se almacena de forma permanente en servidores.
+                      <strong>{isEn ? 'Required consent:' : 'Consentimiento obligatorio:'}</strong>{' '}
+                      {isEn
+                        ? 'I authorize sending the PDF through the secure external delivery service Resend. I understand that no financial data is permanently stored on servers.'
+                        : 'Autorizo el envío del PDF a través del servicio de entrega seguro externo Resend. Entiendo que ningún dato financiero se almacena de forma permanente en servidores.'}
                     </span>
                   </label>
 
@@ -310,7 +361,10 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
                       className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#2B7A55] focus:ring-[#2B7A55]"
                     />
                     <span className="text-xs text-slate-500 leading-normal">
-                      <em>(Opcional - desmarcado por defecto):</em> Deseo recibir futuros correos educativos y consejos financieros de Perquin de León. Podrás darte de baja en cualquier momento con un clic.
+                      <em>{isEn ? '(Optional - unchecked by default):' : '(Opcional - desmarcado por defecto):'}</em>{' '}
+                      {isEn
+                        ? 'I would like to receive future educational emails and financial tips from Perquin de León. You can unsubscribe at any time with one click.'
+                        : 'Deseo recibir futuros correos educativos y consejos financieros de Perquin de León. Podrás darte de baja en cualquier momento con un clic.'}
                     </span>
                   </label>
                 </div>
@@ -344,12 +398,12 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
                   {isSending ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin text-[#C7E7A4]" />
-                      <span>Enviando documento...</span>
+                      <span>{isEn ? 'Sending document...' : 'Enviando documento...'}</span>
                     </>
                   ) : (
                     <>
                       <Send className="w-4 h-4 text-[#C7E7A4]" />
-                      <span>ENVIAR MI PLAN POR CORREO</span>
+                      <span>{isEn ? 'SEND MY PLAN BY EMAIL' : 'ENVIAR MI PLAN POR CORREO'}</span>
                     </>
                   )}
                 </button>
@@ -361,7 +415,9 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
         {/* Footer Disclaimer */}
         <div className="bg-slate-50 p-4 sm:p-5 border-t border-slate-200 text-center text-xs text-slate-500">
           <p>
-            {APP_CONFIG.brandName} garantiza que tu documento se genera exclusivamente en tu navegador. Puedes guardar el PDF directamente a tu dispositivo cuantas veces desees sin entregar tu dirección de correo electrónico.
+            {isEn
+              ? `${APP_CONFIG.brandName} guarantees that your document is generated exclusively inside your browser. You can save the PDF directly to your device as many times as you like without providing your email address.`
+              : `${APP_CONFIG.brandName} garantiza que tu documento se genera exclusivamente en tu navegador. Puedes guardar el PDF directamente a tu dispositivo cuantas veces desees sin entregar tu dirección de correo electrónico.`}
           </p>
         </div>
       </div>

@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
-import { FAQS } from '../data/faqData';
+import { getFaqs } from '../data/faqData';
+import { useLanguage } from '../context/LanguageContext';
 
 export const FaqSection: React.FC = () => {
+  const { lang } = useLanguage();
+  const isEn = lang === 'en';
+  const faqs = getFaqs(lang);
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
   const toggle = (idx: number) => {
@@ -14,18 +18,20 @@ export const FaqSection: React.FC = () => {
       <div className="text-center mb-10">
         <div className="inline-flex items-center space-x-2 bg-[#F1F9EC] border border-[#C7E7A4] text-[#2B7A55] px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
           <HelpCircle className="w-4 h-4" />
-          <span>Preguntas Frecuentes</span>
+          <span>{isEn ? 'Frequently Asked Questions' : 'Preguntas Frecuentes'}</span>
         </div>
         <h2 className="text-2xl sm:text-4xl font-extrabold text-[#102C46] tracking-tight">
-          Resolvemos tus Dudas sobre la Compra de Vivienda
+          {isEn ? 'Answers to Your Homebuying Questions' : 'Resolvemos tus Dudas sobre la Compra de Vivienda'}
         </h2>
         <p className="mt-3 text-slate-600 max-w-2xl mx-auto text-base">
-          Respuestas transparentes sobre privacidad, preparación financiera y cómo utilizar esta herramienta educativa.
+          {isEn
+            ? 'Transparent answers about privacy, financial preparation, and how to use this educational tool.'
+            : 'Respuestas transparentes sobre privacidad, preparación financiera y cómo utilizar esta herramienta educativa.'}
         </p>
       </div>
 
       <div className="space-y-3">
-        {FAQS.map((faq, idx) => {
+        {faqs.map((faq, idx) => {
           const isOpen = openIdx === idx;
           return (
             <div

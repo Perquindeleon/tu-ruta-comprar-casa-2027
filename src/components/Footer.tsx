@@ -1,6 +1,7 @@
 import React from 'react';
-import { ExternalLink, ShieldCheck, Heart, Award, ArrowUp } from 'lucide-react';
-import { APP_CONFIG } from '../data/config';
+import { ExternalLink, ArrowUp } from 'lucide-react';
+import { getAppConfig } from '../data/config';
+import { useLanguage } from '../context/LanguageContext';
 
 interface FooterProps {
   onOpenPrivacy: () => void;
@@ -13,6 +14,10 @@ export const Footer: React.FC<FooterProps> = ({
   onOpenTerms,
   onScrollToTop,
 }) => {
+  const { lang } = useLanguage();
+  const isEn = lang === 'en';
+  const appConfig = getAppConfig(lang);
+
   return (
     <footer className="bg-[#102C46] text-white pt-16 pb-12 border-t border-[#1C4368]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -28,31 +33,31 @@ export const Footer: React.FC<FooterProps> = ({
               </div>
               <div>
                 <span className="font-extrabold tracking-wide text-lg block text-white leading-tight">
-                  {APP_CONFIG.brandName}
+                  {appConfig.brandName}
                 </span>
                 <span className="text-xs text-[#C7E7A4] font-medium block">
-                  {APP_CONFIG.appName}
+                  {appConfig.appName}
                 </span>
               </div>
             </div>
 
             <p className="text-sm text-slate-300 italic font-medium leading-relaxed max-w-sm">
-              "{APP_CONFIG.slogan}"
+              "{appConfig.slogan}"
             </p>
 
             <p className="text-xs text-[#C7E7A4] font-semibold tracking-wide">
-              {APP_CONFIG.subSlogan}
+              {appConfig.subSlogan}
             </p>
           </div>
 
           {/* Social Links & Community */}
           <div className="md:col-span-4 space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-[#D5AD57]">
-              Sigue a Perquin de León
+              {isEn ? 'Follow Perquin de León' : 'Sigue a Perquin de León'}
             </h4>
             <div className="space-y-2">
               <a
-                href={APP_CONFIG.social.facebook}
+                href={appConfig.social.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-2 text-sm text-slate-200 hover:text-white transition-colors group"
@@ -60,12 +65,12 @@ export const Footer: React.FC<FooterProps> = ({
                 <span className="w-6 h-6 rounded bg-[#1C4368] group-hover:bg-[#2B7A55] flex items-center justify-center text-xs font-bold text-[#C7E7A4]">
                   f
                 </span>
-                <span>Facebook Oficial: facebook.com/perquindeleon</span>
+                <span>{isEn ? 'Official Facebook: facebook.com/perquindeleon' : 'Facebook Oficial: facebook.com/perquindeleon'}</span>
                 <ExternalLink className="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
               </a>
 
               <a
-                href={APP_CONFIG.social.tiktok}
+                href={appConfig.social.tiktok}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-2 text-sm text-slate-200 hover:text-white transition-colors group"
@@ -79,14 +84,16 @@ export const Footer: React.FC<FooterProps> = ({
             </div>
 
             <p className="text-xs text-slate-400 pt-2">
-              Videos cortos, consejos prácticos semanales y análisis claros sobre finanzas personales en EE. UU.
+              {isEn
+                ? 'Short videos, weekly practical tips, and clear breakdowns on personal finance in the U.S.'
+                : 'Videos cortos, consejos prácticos semanales y análisis claros sobre finanzas personales en EE. UU.'}
             </p>
           </div>
 
           {/* Legal and Privacy Navigation */}
           <div className="md:col-span-3 space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-[#D5AD57]">
-              Transparencia y Legal
+              {isEn ? 'Transparency & Legal' : 'Transparencia y Legal'}
             </h4>
             <div className="space-y-2 text-sm">
               <button
@@ -94,7 +101,7 @@ export const Footer: React.FC<FooterProps> = ({
                 onClick={onOpenPrivacy}
                 className="block text-left text-slate-300 hover:text-white hover:underline transition-colors"
               >
-                Política de Privacidad (Cero Almacenamiento)
+                {isEn ? 'Privacy Policy (Zero Data Storage)' : 'Política de Privacidad (Cero Almacenamiento)'}
               </button>
 
               <button
@@ -102,7 +109,7 @@ export const Footer: React.FC<FooterProps> = ({
                 onClick={onOpenTerms}
                 className="block text-left text-slate-300 hover:text-white hover:underline transition-colors"
               >
-                Condiciones de Uso y Exención de Responsabilidad
+                {isEn ? 'Terms of Use & Disclaimer' : 'Condiciones de Uso y Exención de Responsabilidad'}
               </button>
 
               <div className="pt-2">
@@ -112,7 +119,7 @@ export const Footer: React.FC<FooterProps> = ({
                   className="inline-flex items-center space-x-1.5 text-xs text-[#C7E7A4] hover:text-white transition-colors"
                 >
                   <ArrowUp className="w-3.5 h-3.5" />
-                  <span>Volver al inicio</span>
+                  <span>{isEn ? 'Back to top' : 'Volver al inicio'}</span>
                 </button>
               </div>
             </div>
@@ -122,15 +129,20 @@ export const Footer: React.FC<FooterProps> = ({
         {/* Bottom Disclaimer */}
         <div className="pt-8 text-xs text-slate-400 space-y-3 text-center sm:text-left">
           <p className="leading-relaxed">
-            <strong>Aviso Legal y Educativo:</strong> Esta aplicación web es una iniciativa personal sin fines comerciales para promover la alfabetización financiera comunitaria. No es una entidad bancaria, prestamista hipotecario, aseguradora, corredor de bienes raíces ni agencia gubernamental. No garantizamos aprobación de créditos ni tasas específicas. Consulta siempre a profesionales con licencia en tu jurisdicción antes de cualquier decisión patrimonial.
+            <strong>{isEn ? 'Legal & Educational Notice:' : 'Aviso Legal y Educativo:'}</strong>{' '}
+            {isEn
+              ? 'This web application is a non-commercial educational initiative to promote community financial literacy. It is not a bank, mortgage lender, insurance carrier, real estate brokerage, or government agency. We do not guarantee credit approval or specific interest rates. Always consult licensed professionals in your jurisdiction before making any financial decisions.'
+              : 'Esta aplicación web es una iniciativa personal sin fines comerciales para promover la alfabetización financiera comunitaria. No es una entidad bancaria, prestamista hipotecario, aseguradora, corredor de bienes raíces ni agencia gubernamental. No garantizamos aprobación de créditos ni tasas específicas. Consulta siempre a profesionales con licencia en tu jurisdicción antes de cualquier decisión patrimonial.'}
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400 pt-4 border-t border-slate-800 gap-2">
             <div>
-              © {new Date().getFullYear()} {APP_CONFIG.brandName} — Todos los derechos reservados.
+              © {new Date().getFullYear()} {appConfig.brandName} — {isEn ? 'All rights reserved.' : 'Todos los derechos reservados.'}
             </div>
             <div>
-              Diseñado y optimizado para la comunidad hispana en Estados Unidos hacia el año 2027.
+              {isEn
+                ? 'Designed and optimized for homebuyers in the United States toward 2027.'
+                : 'Diseñado y optimizado para la comunidad hispana en Estados Unidos hacia el año 2027.'}
             </div>
           </div>
         </div>

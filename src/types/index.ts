@@ -1,3 +1,5 @@
+export type Language = 'es' | 'en';
+
 export type PurchaseTimeframe = 
   | '3_months' 
   | '6_months' 
@@ -100,6 +102,7 @@ export interface RateComparisonScenario {
 export interface ChecklistItem {
   id: string;
   text: string;
+  textEn?: string;
   category: 'etapa1' | 'etapa2' | 'etapa3' | 'etapa4';
   description?: string;
 }
@@ -107,13 +110,17 @@ export interface ChecklistItem {
 export interface AssistanceProgram {
   id: string;
   name: string;
+  nameEn?: string;
   agency: string;
   description: string;
+  descriptionEn?: string;
   jurisdiction: string; // 'Nacional' or State Code / Name
+  jurisdictionEn?: string;
   type: 'dpa' | 'loan' | 'counseling' | 'tax_credit';
   targetAudience: 'first_time' | 'all' | 'veteran' | 'rural';
   officialUrl: string;
   lastVerified: string;
+  lastVerifiedEn?: string;
   status: 'verified' | 'pending_verification';
 }
 
