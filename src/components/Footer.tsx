@@ -83,7 +83,7 @@ export const Footer: React.FC<FooterProps> = ({
               </a>
             </div>
 
-            <p className="text-xs text-slate-400 pt-2">
+            <p className="text-xs text-slate-200 pt-2">
               {isEn
                 ? 'Short videos, weekly practical tips, and clear breakdowns on personal finance in the U.S.'
                 : 'Videos cortos, consejos prácticos semanales y análisis claros sobre finanzas personales en EE. UU.'}
@@ -99,7 +99,7 @@ export const Footer: React.FC<FooterProps> = ({
               <button
                 type="button"
                 onClick={onOpenPrivacy}
-                className="block text-left text-slate-300 hover:text-white hover:underline transition-colors"
+                className="block text-left text-slate-100 hover:text-[#C7E7A4] hover:underline transition-colors"
               >
                 {isEn ? 'Privacy Policy (Zero Data Storage)' : 'Política de Privacidad (Cero Almacenamiento)'}
               </button>
@@ -107,7 +107,7 @@ export const Footer: React.FC<FooterProps> = ({
               <button
                 type="button"
                 onClick={onOpenTerms}
-                className="block text-left text-slate-300 hover:text-white hover:underline transition-colors"
+                className="block text-left text-slate-100 hover:text-[#C7E7A4] hover:underline transition-colors"
               >
                 {isEn ? 'Terms of Use & Disclaimer' : 'Condiciones de Uso y Exención de Responsabilidad'}
               </button>
@@ -116,7 +116,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={onScrollToTop}
-                  className="inline-flex items-center space-x-1.5 text-xs text-[#C7E7A4] hover:text-white transition-colors"
+                  className="inline-flex items-center space-x-1.5 text-xs font-semibold text-[#C7E7A4] hover:text-white transition-colors"
                 >
                   <ArrowUp className="w-3.5 h-3.5" />
                   <span>{isEn ? 'Back to top' : 'Volver al inicio'}</span>
@@ -127,15 +127,15 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
 
         {/* Bottom Disclaimer */}
-        <div className="pt-8 text-xs text-slate-400 space-y-3 text-center sm:text-left">
+        <div className="pt-8 text-xs text-slate-200 space-y-3 text-center sm:text-left">
           <p className="leading-relaxed">
-            <strong>{isEn ? 'Legal & Educational Notice:' : 'Aviso Legal y Educativo:'}</strong>{' '}
+            <strong className="text-white">{isEn ? 'Legal & Educational Notice:' : 'Aviso Legal y Educativo:'}</strong>{' '}
             {isEn
               ? 'This web application is a non-commercial educational initiative to promote community financial literacy. It is not a bank, mortgage lender, insurance carrier, real estate brokerage, or government agency. We do not guarantee credit approval or specific interest rates. Always consult licensed professionals in your jurisdiction before making any financial decisions.'
               : 'Esta aplicación web es una iniciativa personal sin fines comerciales para promover la alfabetización financiera comunitaria. No es una entidad bancaria, prestamista hipotecario, aseguradora, corredor de bienes raíces ni agencia gubernamental. No garantizamos aprobación de créditos ni tasas específicas. Consulta siempre a profesionales con licencia en tu jurisdicción antes de cualquier decisión patrimonial.'}
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400 pt-4 border-t border-slate-800 gap-2">
+          <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-slate-300 pt-4 border-t border-slate-700 gap-2">
             <div>
               © {new Date().getFullYear()} {appConfig.brandName} — {isEn ? 'All rights reserved.' : 'Todos los derechos reservados.'}
             </div>

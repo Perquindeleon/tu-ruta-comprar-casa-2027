@@ -77,7 +77,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
 
         {/* Progress Bar */}
         <div className="mt-6 max-w-md mx-auto">
-          <div className="flex justify-between text-xs font-semibold text-slate-500 mb-1">
+          <div className="flex justify-between text-xs font-bold text-slate-700 mb-1.5">
             <span>{isEn ? 'Assessment progress' : 'Progreso del diagnóstico'}</span>
             <span>
               {isEn
@@ -120,7 +120,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
                     <div>
                       <span>{isEn ? opt.labelEn : opt.label}</span>
                       {(isEn ? opt.sublabelEn : opt.sublabel) && (
-                        <span className="block text-xs font-normal text-slate-500">
+                        <span className="block text-xs font-medium text-slate-600">
                           {isEn ? opt.sublabelEn : opt.sublabel}
                         </span>
                       )}
@@ -181,7 +181,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
                     <div>
                       <span>{isEn ? opt.labelEn : opt.label}</span>
                       {(isEn ? opt.sublabelEn : opt.sublabel) && (
-                        <span className="block text-xs font-normal text-slate-500">
+                        <span className="block text-xs font-medium text-slate-600">
                           {isEn ? opt.sublabelEn : opt.sublabel}
                         </span>
                       )}
@@ -215,7 +215,7 @@ export const DiagnosticModule: React.FC<DiagnosticModuleProps> = ({
                     <div>
                       <span>{isEn ? opt.labelEn : opt.label}</span>
                       {(isEn ? opt.sublabelEn : opt.sublabel) && (
-                        <span className="block text-xs font-normal text-slate-500">
+                        <span className="block text-xs font-medium text-slate-600">
                           {isEn ? opt.sublabelEn : opt.sublabel}
                         </span>
                       )}

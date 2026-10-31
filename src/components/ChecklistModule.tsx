@@ -118,7 +118,7 @@ export const ChecklistModule: React.FC<ChecklistModuleProps> = ({
                       {isEn ? stage.titleEn : stage.title}
                     </h3>
                   </div>
-                  <p className="text-xs text-slate-300 mt-1 pl-8">
+                  <p className="text-xs text-slate-100 mt-1 pl-8">
                     {isEn ? stage.subtitleEn : stage.subtitle}
                   </p>
                 </div>
@@ -155,7 +155,7 @@ export const ChecklistModule: React.FC<ChecklistModuleProps> = ({
                         className="mt-1 h-5 w-5 rounded border-slate-300 text-[#2B7A55] focus:ring-[#2B7A55] cursor-pointer shrink-0"
                       />
                       <div className="flex-1 text-sm select-none">
-                        <span className={isChecked ? 'line-through text-slate-400' : 'font-medium text-slate-800'}>
+                        <span className={isChecked ? 'line-through text-slate-600 font-medium' : 'font-semibold text-slate-900'}>
                           {itemText}
                         </span>
                       </div>

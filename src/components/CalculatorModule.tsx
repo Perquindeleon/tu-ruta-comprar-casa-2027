@@ -248,7 +248,7 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                     %
                   </div>
                 </div>
-                <span className="text-[11px] text-slate-400 block mt-1">
+                <span className="text-[11px] text-slate-600 font-medium block mt-1">
                   {isEn ? 'Enter the rate quoted by your lender.' : 'Introduce la tasa que te cotice tu prestamista.'}
                 </span>
               </div>
@@ -268,7 +268,7 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                   <option value={15}>{isEn ? '15 years (180 mos) — Less total interest' : '15 años (180 meses) — Menos interés total'}</option>
                   <option value={10}>{isEn ? '10 years (120 mos)' : '10 años (120 meses)'}</option>
                 </select>
-                <span className="text-[11px] text-slate-400 block mt-1">
+                <span className="text-[11px] text-slate-600 font-medium block mt-1">
                   {isEn
                     ? 'Shorter terms have higher monthly payments but lower total interest.'
                     : 'A menor plazo, mayor pago mensual pero menor costo en intereses.'}
@@ -303,7 +303,7 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                     className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2B7A55]"
                   />
                 </div>
-                <span className="text-[11px] text-slate-400 block mt-1">
+                <span className="text-[11px] text-slate-600 font-medium block mt-1">
                   {isEn ? `Approx: ${formatCurrency(outputs.monthlyPropertyTax)} / month` : `Aprox: ${formatCurrency(outputs.monthlyPropertyTax)} al mes`}
                 </span>
               </div>
@@ -327,7 +327,7 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                     className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2B7A55]"
                   />
                 </div>
-                <span className="text-[11px] text-slate-400 block mt-1">
+                <span className="text-[11px] text-slate-600 font-medium block mt-1">
                   {isEn ? `Approx: ${formatCurrency(outputs.monthlyHomeInsurance)} / month` : `Aprox: ${formatCurrency(outputs.monthlyHomeInsurance)} al mes`}
                 </span>
               </div>
@@ -353,7 +353,7 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                     className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2B7A55]"
                   />
                 </div>
-                <span className="text-[11px] text-slate-400 block mt-1">
+                <span className="text-[11px] text-slate-600 font-medium block mt-1">
                   {isEn ? 'Generally applies if down payment is under 20%.' : 'Aplica generalmente si el pronto es menor al 20%.'}
                 </span>
               </div>
@@ -377,7 +377,7 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                     className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#2B7A55]"
                   />
                 </div>
-                <span className="text-[11px] text-slate-400 block mt-1">
+                <span className="text-[11px] text-slate-600 font-medium block mt-1">
                   {isEn ? 'Condos, townhomes, or HOA communities.' : 'Condominios o urbanizaciones con asociación.'}
                 </span>
               </div>
@@ -537,7 +537,7 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                         step="50"
                         value={inputs.inspectionCost || ''}
                         onChange={(e) => onUpdateInputs({ inspectionCost: parseFloat(e.target.value) || 0 })}
-                        className="w-full pl-7 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-medium"
+                        className="w-full pl-7 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-[#2B7A55]"
                       />
                     </div>
                   </div>
@@ -557,7 +557,7 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                         step="50"
                         value={inputs.appraisalCost || ''}
                         onChange={(e) => onUpdateInputs({ appraisalCost: parseFloat(e.target.value) || 0 })}
-                        className="w-full pl-7 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-medium"
+                        className="w-full pl-7 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-[#2B7A55]"
                       />
                     </div>
                   </div>
@@ -577,7 +577,7 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                         step="100"
                         value={inputs.movingCost || ''}
                         onChange={(e) => onUpdateInputs({ movingCost: parseFloat(e.target.value) || 0 })}
-                        className="w-full pl-7 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-medium"
+                        className="w-full pl-7 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-[#2B7A55]"
                       />
                     </div>
                   </div>
@@ -597,7 +597,7 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                         step="200"
                         value={inputs.initialRepairsCost || ''}
                         onChange={(e) => onUpdateInputs({ initialRepairsCost: parseFloat(e.target.value) || 0 })}
-                        className="w-full pl-7 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-medium"
+                        className="w-full pl-7 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-[#2B7A55]"
                       />
                     </div>
                   </div>
@@ -619,7 +619,7 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                         step="500"
                         value={inputs.emergencyReserveCost || ''}
                         onChange={(e) => onUpdateInputs({ emergencyReserveCost: parseFloat(e.target.value) || 0 })}
-                        className="w-full pl-7 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-medium"
+                        className="w-full pl-7 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-[#2B7A55]"
                       />
                     </div>
                   </div>

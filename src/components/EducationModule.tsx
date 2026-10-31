@@ -126,10 +126,10 @@ export const EducationModule: React.FC = () => {
               >
                 <div className="space-y-1">
                   <div className="flex items-center space-x-2">
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-[#102C46]/10 text-[#102C46]">
                       {art.category}
                     </span>
-                    <span className="text-[11px] text-slate-400">
+                    <span className="text-[11px] font-medium text-slate-600">
                       {isEn ? `Updated: ${art.lastUpdated}` : `Actualizado: ${art.lastUpdated}`}
                     </span>
                   </div>

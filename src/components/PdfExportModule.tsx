@@ -169,7 +169,7 @@ export const PdfExportModule: React.FC<PdfExportModuleProps> = ({
                 : 'Mi Plan para Comprar Casa en 2027 — Perquin de León'}
             </h3>
 
-            <p className="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-100 max-w-xl mx-auto leading-relaxed">
               {isEn
                 ? 'Includes your readiness assessment, monthly payment breakdown, upfront cash required, rate comparison, 4-stage checklist, and essential questions for your lender, agent, and inspector.'
                 : 'Incluye tu diagnóstico, desglose del pago mensual, efectivo inicial necesario, comparación de tasas, tu checklist de 4 etapas y las preguntas clave para el banco, agente e inspector.'}

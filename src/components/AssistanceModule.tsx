@@ -187,7 +187,7 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
 
             {/* Card Action */}
             <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-xs text-slate-400">
+              <span className="text-xs font-medium text-slate-600">
                 {isEn ? 'Official Government Source' : 'Fuente Gubernamental Oficial'}
               </span>
 
