@@ -64,7 +64,7 @@ export function generatePlanPdf(
 
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
+    doc.setFontSize(10.5);
     doc.text(
       isEn
         ? 'PERQUIN DE LEÓN  |  YOUR ROADMAP TO BUYING A HOME IN 2027'
@@ -83,11 +83,15 @@ export function generatePlanPdf(
       { align: 'right' }
     );
 
-    currentY += 50;
+    // Banner ends at currentY + 38; advance 58pt so next elements have 20pt breathing room
+    currentY += 58;
   };
 
   // --- PAGE 1: COVER & HEADER ---
   drawHeaderBanner();
+
+  // Add extra offset for 20pt font ascenders (baseline is bottom of text)
+  currentY += 10;
 
   // Main Title
   doc.setTextColor(navyColor[0], navyColor[1], navyColor[2]);
@@ -98,13 +102,13 @@ export function generatePlanPdf(
     margin,
     currentY
   );
-  currentY += 22;
+  currentY += 20;
 
   doc.setFont('helvetica', 'italic');
   doc.setFontSize(10);
   doc.setTextColor(greenColor[0], greenColor[1], greenColor[2]);
   doc.text(`"${appConfig.slogan}"`, margin, currentY);
-  currentY += 24;
+  currentY += 18;
 
   // Metadata Box
   doc.setFillColor(248, 250, 252);
@@ -144,17 +148,17 @@ export function generatePlanPdf(
 
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(slateMuted[0], slateMuted[1], slateMuted[2]);
-  doc.text(isEn ? 'Jurisdiction:' : 'Jurisdicción:', margin + 310, currentY + 20);
-  doc.text(isEn ? 'Report Mode:' : 'Modalidad de informe:', margin + 310, currentY + 38);
+  doc.text(isEn ? 'Jurisdiction:' : 'Jurisdicción:', margin + 285, currentY + 20);
+  doc.text(isEn ? 'Report Mode:' : 'Modalidad de informe:', margin + 285, currentY + 38);
 
   doc.setTextColor(slateDark[0], slateDark[1], slateDark[2]);
   doc.setFont('helvetica', 'bold');
-  doc.text(stateName, margin + 385, currentY + 20);
+  doc.text(stateName, margin + 390, currentY + 20);
   doc.text(
     includeFin
       ? (isEn ? 'Full with calculations' : 'Completo con cálculos')
-      : (isEn ? 'Educational (Figures hidden)' : 'Educativo (Cifras reservadas)'),
-    margin + 415,
+      : (isEn ? 'Educational (No figures)' : 'Educativo (Sin cifras)'),
+    margin + 390,
     currentY + 38
   );
 
@@ -174,27 +178,32 @@ export function generatePlanPdf(
   );
   currentY += 28;
 
-  // Outcome Badge & Tier
+  // Outcome Badge & Tier (dynamic height for wrapped summary)
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  const summaryLines = doc.splitTextToSize(diagnosticResult.summary, contentWidth - 28) as string[];
+  const outcomeBoxHeight = Math.max(66, 46 + (summaryLines.length * 12));
+
   doc.setFillColor(241, 249, 236);
   doc.setDrawColor(lightGreenColor[0], lightGreenColor[1], lightGreenColor[2]);
-  doc.roundedRect(margin, currentY, contentWidth, 58, 4, 4, 'FD');
+  doc.roundedRect(margin, currentY, contentWidth, outcomeBoxHeight, 4, 4, 'FD');
 
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
+  doc.setFontSize(10);
   doc.setTextColor(greenColor[0], greenColor[1], greenColor[2]);
   doc.text(diagnosticResult.badge.toUpperCase(), margin + 14, currentY + 18);
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(12);
   doc.setTextColor(navyColor[0], navyColor[1], navyColor[2]);
-  doc.text(diagnosticResult.title, margin + 14, currentY + 34);
+  doc.text(diagnosticResult.title, margin + 14, currentY + 35);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(slateDark[0], slateDark[1], slateDark[2]);
-  doc.text(diagnosticResult.summary, margin + 14, currentY + 48, { maxWidth: contentWidth - 28 });
+  doc.text(summaryLines, margin + 14, currentY + 50);
 
-  currentY += 72;
+  currentY += outcomeBoxHeight + 14;
 
   // Key reasons & recommendations in autoTable
   const diagTableBody = [
@@ -576,9 +585,20 @@ export function generatePlanPdf(
   currentY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 16;
 
   // Legal Disclaimer Box
+  const disclaimerText = isEn
+    ? `${appConfig.disclaimer} Document generated automatically for strictly educational purposes. Perquin de León does not act as a mortgage lender or broker.`
+    : `${appConfig.disclaimer} Documento generado automáticamente para fines exclusivamente educativos. Perquin de León no actúa como prestamista ni intermediario hipotecario.`;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7);
+  const disclaimerLines = doc.splitTextToSize(disclaimerText, contentWidth - 24) as string[];
+  const disclaimerBoxHeight = Math.max(54, 28 + (disclaimerLines.length * 9));
+
+  checkAddPage(disclaimerBoxHeight + 10);
+
   doc.setFillColor(254, 252, 232); // light yellow/gold
   doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2]);
-  doc.roundedRect(margin, currentY, contentWidth, 54, 4, 4, 'FD');
+  doc.roundedRect(margin, currentY, contentWidth, disclaimerBoxHeight, 4, 4, 'FD');
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8);
@@ -588,14 +608,7 @@ export function generatePlanPdf(
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
   doc.setTextColor(slateDark[0], slateDark[1], slateDark[2]);
-  doc.text(
-    isEn
-      ? `${appConfig.disclaimer} Document generated automatically for strictly educational purposes. Perquin de León does not act as a mortgage lender or broker.`
-      : `${appConfig.disclaimer} Documento generado automáticamente para fines exclusivamente educativos. Perquin de León no actúa como prestamista ni intermediario hipotecario.`,
-    margin + 12,
-    currentY + 26,
-    { maxWidth: contentWidth - 24 }
-  );
+  doc.text(disclaimerLines, margin + 12, currentY + 26);
 
   // --- FOOTER AND PAGE NUMBERING FOR ALL PAGES ---
   const totalPages = doc.getNumberOfPages();
