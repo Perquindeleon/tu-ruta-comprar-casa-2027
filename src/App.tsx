@@ -20,47 +20,45 @@ const AppContent: React.FC = () => {
   const { lang } = useLanguage();
   const isEn = lang === 'en';
 
-  // 1. Diagnostic state (ephemeral in-memory)
+  // 1. Diagnostic state (ephemeral in-memory — blank by default)
   const [diagnosticAnswers, setDiagnosticAnswers] = useState<DiagnosticAnswers>({
-    timeframe: '2027_or_later',
-    creditReviewed: 'yes',
-    creditSituation: 'good',
-    savings: '10k_25k',
-    monthlyDebts: 'yes',
-    calculatedBudget: 'no',
-    talkedToLender: 'no',
+    timeframe: undefined,
+    creditReviewed: undefined,
+    creditSituation: undefined,
+    savings: undefined,
+    monthlyDebts: undefined,
+    calculatedBudget: undefined,
+    talkedToLender: undefined,
     state: '',
     countyOrCity: '',
   });
 
-  // 2. Calculator state (sensible defaults: $300k, 5% down, 7.0% rate, 30 yrs)
+  // 2. Calculator state (blank / zero by default so inputs appear empty)
   const [calculatorInputs, setCalculatorInputs] = useState<CalculatorInputs>({
-    purchasePrice: 300000,
+    purchasePrice: 0,
     downPaymentMode: 'percent',
-    downPaymentPercent: 5,
-    downPaymentDollar: 15000,
-    annualInterestRate: 7.0,
+    downPaymentPercent: 0,
+    downPaymentDollar: 0,
+    annualInterestRate: 0,
     loanTermYears: 30,
-    annualPropertyTax: 3600,
-    annualHomeInsurance: 1500,
-    monthlyPMI: 140,
+    annualPropertyTax: 0,
+    annualHomeInsurance: 0,
+    monthlyPMI: 0,
     monthlyHOA: 0,
     monthlyFloodInsurance: 0,
     otherMonthlyExpenses: 0,
     closingCostsMode: 'percent',
-    closingCostsPercent: 3.0,
-    closingCostsDollar: 9000,
-    inspectionCost: 450,
-    appraisalCost: 550,
-    movingCost: 1200,
-    initialRepairsCost: 1500,
-    emergencyReserveCost: 5000,
+    closingCostsPercent: 0,
+    closingCostsDollar: 0,
+    inspectionCost: 0,
+    appraisalCost: 0,
+    movingCost: 0,
+    initialRepairsCost: 0,
+    emergencyReserveCost: 0,
   });
 
-  // 3. Checklist state (array of completed task IDs in memory)
-  const [completedChecklistIds, setCompletedChecklistIds] = useState<string[]>([
-    'e1-1', // Initially mark review credit report as an encouraging starter
-  ]);
+  // 3. Checklist state (empty by default)
+  const [completedChecklistIds, setCompletedChecklistIds] = useState<string[]>([]);
 
   // 4. Assistance module selected state
   const [selectedState, setSelectedState] = useState<string>('');

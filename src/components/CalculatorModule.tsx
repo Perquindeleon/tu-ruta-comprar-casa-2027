@@ -30,7 +30,7 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
   const { lang } = useLanguage();
   const isEn = lang === 'en';
   const [showAdvancedUpfront, setShowAdvancedUpfront] = useState(false);
-  const [comparisonRates, setComparisonRates] = useState<[number, number, number]>([6.0, 7.0, 8.0]);
+  const [comparisonRates, setComparisonRates] = useState<[number, number, number]>([0, 0, 0]);
 
   const outputs: CalculatorOutputs = calculateRealMortgage(inputs);
   const rateScenarios: RateComparisonScenario[] = calculateRateComparisons(
@@ -785,7 +785,8 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                     step="0.25"
                     min="0"
                     max="20"
-                    value={comparisonRates[idx]}
+                    placeholder={['6.0', '7.0', '8.0'][idx]}
+                    value={comparisonRates[idx] || ''}
                     onChange={(e) => {
                       const newRates: [number, number, number] = [...comparisonRates] as [number, number, number];
                       newRates[idx] = parseFloat(e.target.value) || 0;
