@@ -100,6 +100,48 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
     });
   };
 
+  const handleApplyLoanPreset = (type: 'fha' | 'conv5' | 'conv20' | 'va') => {
+    if (type === 'fha') {
+      const downPct = 3.5;
+      const downDollar = (inputs.purchasePrice * downPct) / 100;
+      const loan = Math.max(0, inputs.purchasePrice - downDollar);
+      const mip = Math.round((loan * 0.0055) / 12);
+      onUpdateInputs({
+        downPaymentMode: 'percent',
+        downPaymentPercent: downPct,
+        downPaymentDollar: downDollar,
+        monthlyPMI: mip,
+      });
+    } else if (type === 'conv5') {
+      const downPct = 5.0;
+      const downDollar = (inputs.purchasePrice * downPct) / 100;
+      const loan = Math.max(0, inputs.purchasePrice - downDollar);
+      const pmi = Math.round((loan * 0.006) / 12);
+      onUpdateInputs({
+        downPaymentMode: 'percent',
+        downPaymentPercent: downPct,
+        downPaymentDollar: downDollar,
+        monthlyPMI: pmi,
+      });
+    } else if (type === 'conv20') {
+      const downPct = 20.0;
+      const downDollar = (inputs.purchasePrice * downPct) / 100;
+      onUpdateInputs({
+        downPaymentMode: 'percent',
+        downPaymentPercent: downPct,
+        downPaymentDollar: downDollar,
+        monthlyPMI: 0,
+      });
+    } else if (type === 'va') {
+      onUpdateInputs({
+        downPaymentMode: 'percent',
+        downPaymentPercent: 0,
+        downPaymentDollar: 0,
+        monthlyPMI: 0,
+      });
+    }
+  };
+
   const handleLoadTypicalUpfrontCosts = () => {
     onUpdateInputs({
       inspectionCost: 450,
@@ -211,6 +253,64 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
 
             {/* Down Payment ($ or %) */}
             <div>
+              {/* Loan Type Presets */}
+              <div className="mb-3 bg-slate-50 border border-slate-200/80 rounded-xl p-2.5">
+                <div className="flex items-center justify-between mb-2 px-0.5">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-[#102C46]">
+                    {isEn ? 'Loan Presets (1-Click):' : 'Programas de Préstamo (1 Clic):'}
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-medium">
+                    {isEn ? 'Auto-sets down payment & PMI' : 'Ajusta pronto y PMI'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => handleApplyLoanPreset('fha')}
+                    className={`px-2 py-1.5 rounded-lg border text-xs font-bold transition-all text-center ${
+                      inputs.downPaymentMode === 'percent' && inputs.downPaymentPercent === 3.5
+                        ? 'border-[#2B7A55] bg-[#2B7A55] text-white shadow-xs'
+                        : 'border-slate-300 bg-white hover:border-[#2B7A55] text-slate-700 hover:text-[#2B7A55]'
+                    }`}
+                  >
+                    <span>FHA (3.5%)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyLoanPreset('conv5')}
+                    className={`px-2 py-1.5 rounded-lg border text-xs font-bold transition-all text-center ${
+                      inputs.downPaymentMode === 'percent' && inputs.downPaymentPercent === 5.0
+                        ? 'border-[#2B7A55] bg-[#2B7A55] text-white shadow-xs'
+                        : 'border-slate-300 bg-white hover:border-[#2B7A55] text-slate-700 hover:text-[#2B7A55]'
+                    }`}
+                  >
+                    <span>{isEn ? 'Conv 5%' : 'Conv. (5%)'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyLoanPreset('conv20')}
+                    className={`px-2 py-1.5 rounded-lg border text-xs font-bold transition-all text-center ${
+                      inputs.downPaymentMode === 'percent' && inputs.downPaymentPercent === 20.0
+                        ? 'border-[#2B7A55] bg-[#2B7A55] text-white shadow-xs'
+                        : 'border-slate-300 bg-white hover:border-[#2B7A55] text-slate-700 hover:text-[#2B7A55]'
+                    }`}
+                  >
+                    <span>{isEn ? 'Conv 20% (No PMI)' : 'Conv. 20% (Sin PMI)'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyLoanPreset('va')}
+                    className={`px-2 py-1.5 rounded-lg border text-xs font-bold transition-all text-center ${
+                      inputs.downPaymentMode === 'percent' && inputs.downPaymentPercent === 0
+                        ? 'border-[#2B7A55] bg-[#2B7A55] text-white shadow-xs'
+                        : 'border-slate-300 bg-white hover:border-[#2B7A55] text-slate-700 hover:text-[#2B7A55]'
+                    }`}
+                  >
+                    <span>{isEn ? 'VA (0% Military)' : 'VA (0% Militar)'}</span>
+                  </button>
+                </div>
+              </div>
+
               <div className="flex items-center justify-between mb-1.5">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-700">
                   {isEn ? 'Down Payment' : 'Pronto (Pago Inicial / Down Payment)'}
@@ -754,10 +854,58 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
               <span className="text-xs uppercase font-extrabold tracking-wider text-[#C7E7A4] block mb-1">
                 {isEn ? 'Estimated Total Monthly Payment' : 'Pago Mensual Total Estimado'}
               </span>
-              <div className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
+              <div className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-3">
                 {formatCurrency(outputs.monthlyTotalPayment)}
                 <span className="text-sm font-normal text-slate-300 ml-1">{isEn ? '/ mo' : '/ mes'}</span>
               </div>
+
+              {/* Segmented Color Bar Breakdown */}
+              {outputs.monthlyTotalPayment > 0 && (() => {
+                const totalPay = outputs.monthlyTotalPayment || 1;
+                const pctPI = Math.min(100, Math.max(0, (outputs.monthlyPrincipalAndInterest / totalPay) * 100));
+                const pctTax = Math.min(100, Math.max(0, (outputs.monthlyPropertyTax / totalPay) * 100));
+                const pctIns = Math.min(100, Math.max(0, ((outputs.monthlyHomeInsurance + outputs.monthlyFloodInsurance) / totalPay) * 100));
+                const pctOther = Math.min(100, Math.max(0, ((outputs.monthlyPMI + outputs.monthlyHOA + outputs.monthlyOtherExpenses) / totalPay) * 100));
+
+                return (
+                  <div className="mb-4">
+                    <div className="h-3 w-full bg-slate-900/90 rounded-full flex overflow-hidden p-0.5 gap-0.5 shadow-inner">
+                      {pctPI > 0 && (
+                        <div style={{ width: `${pctPI}%` }} className="bg-[#38BDF8] rounded-l-full transition-all" title={`P&I: ${pctPI.toFixed(0)}%`} />
+                      )}
+                      {pctTax > 0 && (
+                        <div style={{ width: `${pctTax}%` }} className="bg-[#34D399] transition-all" title={`Taxes: ${pctTax.toFixed(0)}%`} />
+                      )}
+                      {pctIns > 0 && (
+                        <div style={{ width: `${pctIns}%` }} className="bg-[#FBBF24] transition-all" title={`Insurance: ${pctIns.toFixed(0)}%`} />
+                      )}
+                      {pctOther > 0 && (
+                        <div style={{ width: `${pctOther}%` }} className="bg-[#F472B6] rounded-r-full transition-all" title={`PMI/HOA/Other: ${pctOther.toFixed(0)}%`} />
+                      )}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-slate-300 mt-2 font-medium">
+                      <span className="inline-flex items-center space-x-1">
+                        <span className="w-2 h-2 rounded-full bg-[#38BDF8]" />
+                        <span>{isEn ? 'P&I' : 'Capital e Interés'} ({pctPI.toFixed(0)}%)</span>
+                      </span>
+                      <span className="inline-flex items-center space-x-1">
+                        <span className="w-2 h-2 rounded-full bg-[#34D399]" />
+                        <span>{isEn ? 'Taxes' : 'Impuestos'} ({pctTax.toFixed(0)}%)</span>
+                      </span>
+                      <span className="inline-flex items-center space-x-1">
+                        <span className="w-2 h-2 rounded-full bg-[#FBBF24]" />
+                        <span>{isEn ? 'Insurance' : 'Seguro'} ({pctIns.toFixed(0)}%)</span>
+                      </span>
+                      {pctOther > 0 && (
+                        <span className="inline-flex items-center space-x-1">
+                          <span className="w-2 h-2 rounded-full bg-[#F472B6]" />
+                          <span>PMI/HOA ({pctOther.toFixed(0)}%)</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Monthly breakdown itemization */}
               <div className="space-y-2 text-xs border-t border-slate-700 pt-4 pb-2">
@@ -794,6 +942,27 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                   </div>
                 )}
               </div>
+
+              {/* Suggested Gross Household Income (DTI 28%) */}
+              {outputs.monthlyTotalPayment > 0 && (
+                <div className="mt-4 bg-white/10 border border-white/15 rounded-xl p-3.5 text-xs">
+                  <div className="flex items-center justify-between text-[#C7E7A4] font-black mb-1">
+                    <span>{isEn ? '💡 Suggested Household Gross Income:' : '💡 Ingreso Bruto Familiar Sugerido:'}</span>
+                    <span className="text-[10px] uppercase bg-[#2B7A55] text-white px-2 py-0.5 rounded-full font-bold">
+                      {isEn ? 'DTI Rule (28%-32%)' : 'Regla 28% DTI'}
+                    </span>
+                  </div>
+                  <div className="text-base sm:text-lg font-black text-white">
+                    ~{formatCurrency(outputs.recommendedMonthlyIncome28)} <span className="text-xs font-normal text-slate-300">{isEn ? '/ mo' : '/ mes'}</span>
+                    <span className="text-xs text-[#C7E7A4] font-medium ml-2">({formatCurrency(outputs.recommendedAnnualIncome28)} {isEn ? '/ yr' : '/ año'})</span>
+                  </div>
+                  <p className="text-[11px] text-slate-300 mt-1.5 leading-snug">
+                    {isEn
+                      ? 'Gross income before taxes recommended so this housing payment stays below 28%-32% of your budget.'
+                      : 'Ingreso antes de impuestos recomendado para que tu vivienda no supere el 28%-32% y vivas sin asfixia financiera.'}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

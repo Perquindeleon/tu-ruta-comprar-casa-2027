@@ -95,6 +95,12 @@ export function calculateRealMortgage(inputs: CalculatorInputs): CalculatorOutpu
 
   const totalCashNeeded = downPaymentAmount + estimatedClosingCosts + totalAdditionalUpfront;
 
+  // Recommended gross income based on DTI 28% and 32%
+  const recommendedMonthlyIncome28 = monthlyTotalPayment > 0 ? Math.round(monthlyTotalPayment / 0.28) : 0;
+  const recommendedAnnualIncome28 = recommendedMonthlyIncome28 * 12;
+  const recommendedMonthlyIncome32 = monthlyTotalPayment > 0 ? Math.round(monthlyTotalPayment / 0.32) : 0;
+  const recommendedAnnualIncome32 = recommendedMonthlyIncome32 * 12;
+
   return {
     downPaymentAmount,
     downPaymentPercentActual,
@@ -109,7 +115,11 @@ export function calculateRealMortgage(inputs: CalculatorInputs): CalculatorOutpu
     monthlyTotalPayment,
     estimatedClosingCosts,
     totalAdditionalUpfront,
-    totalCashNeeded
+    totalCashNeeded,
+    recommendedMonthlyIncome28,
+    recommendedAnnualIncome28,
+    recommendedMonthlyIncome32,
+    recommendedAnnualIncome32
   };
 }
 

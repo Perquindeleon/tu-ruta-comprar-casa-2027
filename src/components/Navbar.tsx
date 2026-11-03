@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { Menu, X, Calculator, CheckSquare, HelpCircle, BookOpen, Download, Globe } from 'lucide-react';
+import { Menu, X, Calculator, CheckSquare, HelpCircle, BookOpen, Download, Globe, RotateCcw } from 'lucide-react';
 import { APP_CONFIG } from '../data/config';
 import { useLanguage } from '../context/LanguageContext';
 
 interface NavbarProps {
   onNavigate: (sectionId: string) => void;
   onOpenPdf: () => void;
+  onResetSession?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onOpenPdf }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onOpenPdf, onResetSession }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { lang, setLang } = useLanguage();
   const isEn = lang === 'en';
@@ -94,6 +95,18 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onOpenPdf }) => {
                 EN
               </button>
             </div>
+
+            {onResetSession && (
+              <button
+                type="button"
+                onClick={onResetSession}
+                className="p-2 text-slate-300 hover:text-[#C7E7A4] hover:bg-[#1C4368] rounded-lg transition-colors"
+                title={isEn ? 'Start new simulation (clear saved data)' : 'Nueva simulación (borrar datos guardados)'}
+                aria-label={isEn ? 'Start new simulation' : 'Nueva simulación'}
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
+            )}
 
             <button
               onClick={onOpenPdf}

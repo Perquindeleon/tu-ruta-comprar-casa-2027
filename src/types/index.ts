@@ -86,6 +86,11 @@ export interface CalculatorOutputs {
   estimatedClosingCosts: number;
   totalAdditionalUpfront: number;
   totalCashNeeded: number;
+  // Recommended income based on DTI 28% (front-end debt-to-income)
+  recommendedMonthlyIncome28: number;
+  recommendedAnnualIncome28: number;
+  recommendedMonthlyIncome32: number;
+  recommendedAnnualIncome32: number;
 }
 
 export interface RateComparisonScenario {
