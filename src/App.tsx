@@ -60,11 +60,26 @@ const AppContent: React.FC = () => {
   // 3. Checklist state (empty by default)
   const [completedChecklistIds, setCompletedChecklistIds] = useState<string[]>([]);
 
-  // 4. Assistance module selected state
+  // 4. Rate comparison scenarios state (initialized with standard 6%, 7%, 8% benchmarks)
+  const [comparisonRates, setComparisonRates] = useState<[number, number, number]>([6.0, 7.0, 8.0]);
+  const [ratesUserModified, setRatesUserModified] = useState<boolean>(false);
+
+  // 5. Assistance module selected state
   const [selectedState, setSelectedState] = useState<string>('');
 
-  // 5. Legal Modals
+  // 6. Legal Modals
   const [legalModalType, setLegalModalType] = useState<'privacy' | 'terms' | null>(null);
+
+  // Dynamically sync rate comparison scenarios when the user inputs their own interest rate
+  useEffect(() => {
+    if (calculatorInputs.annualInterestRate > 0 && !ratesUserModified) {
+      const base = calculatorInputs.annualInterestRate;
+      const r1 = Math.max(0.5, Number((base - 1).toFixed(2)));
+      const r2 = Number(base.toFixed(2));
+      const r3 = Number((base + 1).toFixed(2));
+      setComparisonRates([r1, r2, r3]);
+    }
+  }, [calculatorInputs.annualInterestRate, ratesUserModified]);
 
   // Sync state selection from diagnostic to assistance filter
   useEffect(() => {
@@ -127,7 +142,7 @@ const AppContent: React.FC = () => {
   const rateScenarios = calculateRateComparisons(
     calculatorOutputs.loanAmount,
     calculatorInputs.loanTermYears,
-    [6.0, 7.0, 8.0]
+    comparisonRates
   );
 
   return (
@@ -158,6 +173,11 @@ const AppContent: React.FC = () => {
         <CalculatorModule
           inputs={calculatorInputs}
           onUpdateInputs={handleUpdateCalculator}
+          comparisonRates={comparisonRates}
+          onUpdateComparisonRates={(newRates) => {
+            setRatesUserModified(true);
+            setComparisonRates(newRates);
+          }}
           onContinueToChecklist={() => scrollToSection('checklist')}
         />
 
