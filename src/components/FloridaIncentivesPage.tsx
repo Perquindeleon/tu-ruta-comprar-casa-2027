@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Building2, 
   Calculator, 
@@ -17,7 +17,9 @@ import {
   Sparkles,
   Info,
   Calendar,
-  Layers
+  Layers,
+  RefreshCw,
+  FileSpreadsheet
 } from 'lucide-react';
 import { 
   FLORIDA_BUILDERS_DATA, 
@@ -25,8 +27,14 @@ import {
   isOfferActive, 
   getDaysRemaining 
 } from '../data/floridaBuildersData';
+import { parseGoogleSheetBuildersCSV } from '../utils/csvParser';
 import { useLanguage } from '../context/LanguageContext';
 import { APP_CONFIG } from '../data/config';
+
+export const GOOGLE_SHEET_CSV_URL =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vTKIAYEGhmhU_UycNE7Xmg9oyVHy12018Va_2CMveWOG7Ri7EijZwpB0ix1NYyXfu6Nahhr6u0SoFUj/pub?gid=0&single=true&output=csv';
+export const GOOGLE_SHEET_EDIT_URL =
+  'https://docs.google.com/spreadsheets/d/1cqCDUoOYLnTAVLutklTEGmb9NFqoGG-2Q9xgUqy9ENY/edit?gid=0#gid=0';
 
 interface FloridaIncentivesPageProps {
   onBackToMain: () => void;
@@ -52,6 +60,12 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
   // Modal state
   const [modalBuilder, setModalBuilder] = useState<BuilderIncentive | null>(null);
 
+  // Live Google Sheet sync state
+  const [buildersData, setBuildersData] = useState<BuilderIncentive[]>(FLORIDA_BUILDERS_DATA);
+  const [isLiveConnected, setIsLiveConnected] = useState<boolean>(false);
+  const [isLoadingLive, setIsLoadingLive] = useState<boolean>(false);
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
+
   // Calculator state
   const [calcMode, setCalcMode] = useState<'fixed' | 'buydown'>('fixed');
   const [calcPrice, setCalcPrice] = useState<number>(420000);
@@ -62,17 +76,48 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
 
   // Real-time calculation of active vs expired offers
   const today = useMemo(() => new Date(), []);
+
+  // Fetch live CSV from Google Sheets on mount
+  const fetchLiveSheetData = async () => {
+    setIsLoadingLive(true);
+    try {
+      const response = await fetch(GOOGLE_SHEET_CSV_URL, { cache: 'no-cache' });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const csvText = await response.text();
+      const parsed = parseGoogleSheetBuildersCSV(csvText);
+      if (parsed && parsed.length > 0) {
+        setBuildersData(parsed);
+        setIsLiveConnected(true);
+        setLastSyncTime(new Date());
+      }
+    } catch (err) {
+      console.warn('Google Sheet live sync failed, continuing with built-in data:', err);
+    } finally {
+      setIsLoadingLive(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLiveSheetData();
+  }, []);
+
+  const currentMonthYear = useMemo(() => {
+    const raw = today.toLocaleDateString(isEn ? 'en-US' : 'es-ES', { month: 'long', year: 'numeric' });
+    return raw.charAt(0).toUpperCase() + raw.slice(1);
+  }, [today, isEn]);
   
-  const totalOffersCount = FLORIDA_BUILDERS_DATA.length;
+  const totalOffersCount = buildersData.length;
   const activeOffersCount = useMemo(() => {
-    return FLORIDA_BUILDERS_DATA.filter((b) => isOfferActive(b, today)).length;
-  }, [today]);
+    return buildersData.filter((b) => isOfferActive(b, today)).length;
+  }, [buildersData, today]);
   const expiredOffersCount = totalOffersCount - activeOffersCount;
 
   // Filtered & sorted builders
   const filteredBuilders = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    let result = FLORIDA_BUILDERS_DATA.filter((b) => {
+    let result = buildersData.filter((b) => {
       // 1. Expiration check
       const active = isOfferActive(b, today);
       if (hideExpired && !active) {
@@ -207,7 +252,7 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
                 </h1>
                 <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] px-2.5 py-0.5 rounded-full font-medium inline-flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  {isEn ? 'Active: Nov 2026' : 'Vigentes: Noviembre 2026'}
+                  {isEn ? `Active: ${currentMonthYear}` : `Vigentes: ${currentMonthYear}`}
                 </span>
               </div>
               <p className="text-xs text-slate-300">
@@ -392,17 +437,17 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
 
               </div>
 
-              {/* Status bar & auto-expiration toggle */}
+              {/* Status bar, live sheet badge & auto-expiration toggle */}
               <div className="mt-4 pt-3.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <span>
                     {isEn ? (
                       <>
-                        Showing <strong className="text-[#2B7A55] font-extrabold">{filteredBuilders.length}</strong> of {totalOffersCount} active offers confirmed for Nov 2026.
+                        Showing <strong className="text-[#2B7A55] font-extrabold">{filteredBuilders.length}</strong> of {totalOffersCount} offers ({activeOffersCount} active).
                       </>
                     ) : (
                       <>
-                        Mostrando <strong className="text-[#2B7A55] font-extrabold">{filteredBuilders.length}</strong> de {totalOffersCount} ofertas confirmadas para Noviembre 2026.
+                        Mostrando <strong className="text-[#2B7A55] font-extrabold">{filteredBuilders.length}</strong> de {totalOffersCount} ofertas ({activeOffersCount} vigentes).
                       </>
                     )}
                   </span>
@@ -417,15 +462,49 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
                     />
                     <span>{isEn ? 'Hide expired offers automatically' : 'Ocultar ofertas vencidas automáticamente'}</span>
                   </label>
+
+                  {/* Google Sheets Live Status Badge */}
+                  {isLiveConnected && (
+                    <span
+                      className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-lg text-[11px] font-semibold"
+                      title={lastSyncTime ? `${isEn ? 'Last synced' : 'Última sinc'}: ${lastSyncTime.toLocaleTimeString()}` : ''}
+                    >
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <span>Google Sheets Live</span>
+                      <button
+                        type="button"
+                        onClick={fetchLiveSheetData}
+                        disabled={isLoadingLive}
+                        className="hover:text-emerald-950 p-0.5 ml-0.5 cursor-pointer"
+                        title={isEn ? 'Refresh data from Google Sheets' : 'Recargar datos desde Google Sheets'}
+                      >
+                        <RefreshCw className={`w-3 h-3 ${isLoadingLive ? 'animate-spin' : ''}`} />
+                      </button>
+                    </span>
+                  )}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handleResetFilters}
-                  className="text-[#2B7A55] hover:text-[#102C46] font-bold transition underline cursor-pointer"
-                >
-                  {isEn ? 'Reset All Filters' : 'Restablecer Filtros'}
-                </button>
+                <div className="flex items-center gap-3">
+                  <a
+                    href={GOOGLE_SHEET_EDIT_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-slate-500 hover:text-emerald-700 inline-flex items-center gap-1 font-semibold transition cursor-pointer text-[11px]"
+                    title={isEn ? 'Open data spreadsheet in Google Sheets' : 'Abrir hoja de datos en Google Sheets'}
+                  >
+                    <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>{isEn ? 'Edit in Sheets' : 'Editar en Sheets'}</span>
+                    <ExternalLink className="w-3 h-3 opacity-60" />
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={handleResetFilters}
+                    className="text-[#2B7A55] hover:text-[#102C46] font-bold transition underline cursor-pointer"
+                  >
+                    {isEn ? 'Reset All Filters' : 'Restablecer Filtros'}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1305,8 +1384,8 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500 space-y-1">
           <p className="font-medium">
             {isEn
-              ? 'Educational compilation of new construction builder incentives across Central Florida (Orlando, Kissimmee, St. Cloud, Davenport, Clermont). Verified for November 2026. All displayed mortgages are fully amortized 30-year loans with zero balloon clauses. Subject to credit qualification with affiliated builder lenders.'
-              : 'Compilación informativa de ofertas de constructoras en Florida Central (Orlando, Kissimmee, St. Cloud, Davenport, Clermont). Verificado para Noviembre 2026. Todas las hipotecas mostradas están completamente amortizadas a 30 años sin pagos Balloon. Sujeto a calificación crediticia y aprobación con el prestamista afiliado.'}
+              ? `Educational compilation of new construction builder incentives across Central Florida (Orlando, Kissimmee, St. Cloud, Davenport, Clermont). Verified for ${currentMonthYear}. All displayed mortgages are fully amortized 30-year loans with zero balloon clauses. Subject to credit qualification with affiliated builder lenders.`
+              : `Compilación informativa de ofertas de constructoras en Florida Central (Orlando, Kissimmee, St. Cloud, Davenport, Clermont). Verificado para ${currentMonthYear}. Todas las hipotecas mostradas están completamente amortizadas a 30 años sin pagos Balloon. Sujeto a calificación crediticia y aprobación con el prestamista afiliado.`}
           </p>
           <p className="text-[11px] text-slate-400">
             {APP_CONFIG.brandName} • {isEn ? 'Independent Educational Tool' : 'Herramienta Educativa Independiente'}
