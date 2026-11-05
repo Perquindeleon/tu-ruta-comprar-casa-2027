@@ -11,6 +11,7 @@ import { FaqSection } from './components/FaqSection';
 import { Footer } from './components/Footer';
 import { LegalModal } from './components/LegalModal';
 import { AssistantChatbot } from './components/AssistantChatbot';
+import { FloridaIncentivesPage } from './components/FloridaIncentivesPage';
 
 import { DiagnosticAnswers, CalculatorInputs } from './types';
 import { evaluateDiagnostic } from './data/questions';
@@ -88,13 +89,73 @@ const AppContent: React.FC = () => {
     initialSaved.completedChecklistIds || []
   );
 
-  // 4. Rate comparison scenarios state (initialized with 6%, 7%, 8% or saved)
-  const [comparisonRates, setComparisonRates] = useState<[number, number, number]>(
-    initialSaved.comparisonRates || [6.0, 7.0, 8.0]
-  );
+  // 4. Rate comparison scenarios state (initialized with 3 positive numbers)
+  const [comparisonRates, setComparisonRates] = useState<[number, number, number]>(() => {
+    const saved = initialSaved.comparisonRates;
+    if (saved && Array.isArray(saved) && saved.length === 3 && saved.every((r) => typeof r === 'number' && r > 0)) {
+      return saved as [number, number, number];
+    }
+    const base = initialSaved.calculatorInputs?.annualInterestRate && initialSaved.calculatorInputs.annualInterestRate > 0
+      ? initialSaved.calculatorInputs.annualInterestRate
+      : 7.0;
+    return [
+      Math.max(0.5, Number((base - 1).toFixed(2))),
+      Number(base.toFixed(2)),
+      Number((base + 1).toFixed(2)),
+    ];
+  });
   const [ratesUserModified, setRatesUserModified] = useState<boolean>(
     initialSaved.ratesUserModified || false
   );
+
+  // Routing state for Florida New Construction Incentives (/incentivos-florida)
+  const [currentRoute, setCurrentRoute] = useState<'main' | 'florida'>(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      return path.includes('incentivos-florida') || hash.includes('incentivos-florida')
+        ? 'florida'
+        : 'main';
+    }
+    return 'main';
+  });
+
+  // Listen to browser forward/backward navigation and hash change
+  useEffect(() => {
+    const handleLocationChange = () => {
+      if (typeof window === 'undefined') return;
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (path.includes('incentivos-florida') || hash.includes('incentivos-florida')) {
+        setCurrentRoute('florida');
+      } else {
+        setCurrentRoute('main');
+      }
+    };
+
+    window.addEventListener('popstate', handleLocationChange);
+    window.addEventListener('hashchange', handleLocationChange);
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('hashchange', handleLocationChange);
+    };
+  }, []);
+
+  const handleGoToFloridaIncentives = () => {
+    setCurrentRoute('florida');
+    if (typeof window !== 'undefined') {
+      window.history.pushState(null, '', '/incentivos-florida');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleBackToMain = () => {
+    setCurrentRoute('main');
+    if (typeof window !== 'undefined') {
+      window.history.pushState(null, '', '/');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   // Auto-save all simulation state to localStorage (100% private to user's device)
   useEffect(() => {
@@ -122,12 +183,14 @@ const AppContent: React.FC = () => {
 
   // Dynamically sync rate comparison scenarios when the user inputs their own interest rate
   useEffect(() => {
-    if (calculatorInputs.annualInterestRate > 0 && !ratesUserModified) {
+    if (calculatorInputs.annualInterestRate > 0) {
       const base = calculatorInputs.annualInterestRate;
       const r1 = Math.max(0.5, Number((base - 1).toFixed(2)));
       const r2 = Number(base.toFixed(2));
       const r3 = Number((base + 1).toFixed(2));
-      setComparisonRates([r1, r2, r3]);
+      if (!ratesUserModified || comparisonRates.some((r) => !r || r <= 0)) {
+        setComparisonRates([r1, r2, r3]);
+      }
     }
   }, [calculatorInputs.annualInterestRate, ratesUserModified]);
 
@@ -241,71 +304,78 @@ const AppContent: React.FC = () => {
         onNavigate={scrollToSection}
         onOpenPdf={() => scrollToSection('mi-pdf')}
         onResetSession={handleResetEntireSession}
+        onGoToFloridaIncentives={handleGoToFloridaIncentives}
       />
 
-      {/* Main Body */}
-      <main id="inicio" className="flex-1">
-        {/* Hero Section */}
-        <Hero
-          onStartDiagnostic={() => scrollToSection('diagnostico')}
-          onGoToCalculator={() => scrollToSection('calculadora')}
-        />
+      {currentRoute === 'florida' ? (
+        <FloridaIncentivesPage onBackToMain={handleBackToMain} />
+      ) : (
+        /* Main Body */
+        <main id="inicio" className="flex-1">
+          {/* Hero Section */}
+          <Hero
+            onStartDiagnostic={() => scrollToSection('diagnostico')}
+            onGoToCalculator={() => scrollToSection('calculadora')}
+            onGoToFloridaIncentives={handleGoToFloridaIncentives}
+          />
 
-        {/* MÓDULO A: DIAGNÓSTICO */}
-        <DiagnosticModule
-          answers={diagnosticAnswers}
-          onUpdateAnswers={handleUpdateDiagnostic}
-          onReset={handleResetDiagnostic}
-          onContinueToCalculator={() => scrollToSection('calculadora')}
-        />
+          {/* MÓDULO A: DIAGNÓSTICO */}
+          <DiagnosticModule
+            answers={diagnosticAnswers}
+            onUpdateAnswers={handleUpdateDiagnostic}
+            onReset={handleResetDiagnostic}
+            onContinueToCalculator={() => scrollToSection('calculadora')}
+          />
 
-        {/* MÓDULO B: CALCULADORA DEL COSTO REAL */}
-        <CalculatorModule
-          inputs={calculatorInputs}
-          onUpdateInputs={handleUpdateCalculator}
-          comparisonRates={comparisonRates}
-          onUpdateComparisonRates={(newRates) => {
-            setRatesUserModified(true);
-            setComparisonRates(newRates);
-          }}
-          onContinueToChecklist={() => scrollToSection('checklist')}
-        />
+          {/* MÓDULO B: CALCULADORA DEL COSTO REAL */}
+          <CalculatorModule
+            inputs={calculatorInputs}
+            onUpdateInputs={handleUpdateCalculator}
+            comparisonRates={comparisonRates}
+            onUpdateComparisonRates={(newRates) => {
+              setRatesUserModified(true);
+              setComparisonRates(newRates);
+            }}
+            onContinueToChecklist={() => scrollToSection('checklist')}
+          />
 
-        {/* MÓDULO C: CHECKLIST INTERACTIVO */}
-        <ChecklistModule
-          completedIds={completedChecklistIds}
-          onToggleItem={handleToggleChecklist}
-          onResetChecklist={handleResetChecklist}
-          onOpenPdf={() => scrollToSection('mi-pdf')}
-        />
+          {/* MÓDULO C: CHECKLIST INTERACTIVO */}
+          <ChecklistModule
+            completedIds={completedChecklistIds}
+            onToggleItem={handleToggleChecklist}
+            onResetChecklist={handleResetChecklist}
+            onOpenPdf={() => scrollToSection('mi-pdf')}
+          />
 
-        {/* MÓDULO D: BUSCADOR DE PROGRAMAS DE ASISTENCIA */}
-        <AssistanceModule
-          selectedState={selectedState}
-          onSelectState={(st) => {
-            setSelectedState(st);
-            if (st !== diagnosticAnswers.state) {
-              setDiagnosticAnswers((prev) => ({ ...prev, state: st }));
-            }
-          }}
-        />
+          {/* MÓDULO D: BUSCADOR DE PROGRAMAS DE ASISTENCIA */}
+          <AssistanceModule
+            selectedState={selectedState}
+            onSelectState={(st) => {
+              setSelectedState(st);
+              if (st !== diagnosticAnswers.state) {
+                setDiagnosticAnswers((prev) => ({ ...prev, state: st }));
+              }
+            }}
+            onGoToFloridaIncentives={handleGoToFloridaIncentives}
+          />
 
-        {/* MÓDULO E: BIBLIOTECA EDUCATIVA */}
-        <EducationModule />
+          {/* MÓDULO E: BIBLIOTECA EDUCATIVA */}
+          <EducationModule />
 
-        {/* GENERADOR DE PDF Y ENVÍO POR CORREO */}
-        <PdfExportModule
-          answers={diagnosticAnswers}
-          diagnosticResult={diagnosticResult}
-          calculatorInputs={calculatorInputs}
-          calculatorOutputs={calculatorOutputs}
-          rateScenarios={rateScenarios}
-          completedChecklistIds={completedChecklistIds}
-        />
+          {/* GENERADOR DE PDF Y ENVÍO POR CORREO */}
+          <PdfExportModule
+            answers={diagnosticAnswers}
+            diagnosticResult={diagnosticResult}
+            calculatorInputs={calculatorInputs}
+            calculatorOutputs={calculatorOutputs}
+            rateScenarios={rateScenarios}
+            completedChecklistIds={completedChecklistIds}
+          />
 
-        {/* SECCIÓN PREGUNTAS FRECUENTES (FAQ) */}
-        <FaqSection />
-      </main>
+          {/* SECCIÓN PREGUNTAS FRECUENTES (FAQ) */}
+          <FaqSection />
+        </main>
+      )}
 
       {/* Footer */}
       <Footer

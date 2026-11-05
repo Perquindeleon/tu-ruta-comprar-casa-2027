@@ -6,7 +6,8 @@ import {
   ArrowRight,
   AlertTriangle,
   Sparkles,
-  RotateCcw
+  RotateCcw,
+  CheckCircle2
 } from 'lucide-react';
 import { CalculatorInputs, CalculatorOutputs, RateComparisonScenario } from '../types';
 import { 
@@ -42,10 +43,18 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
   const outputs: CalculatorOutputs = calculateRealMortgage(inputs);
   
   // Real-time calculated rate scenarios based on active comparison rates
+  // Guarantee fallback positive rates if user hasn't set them or if 0 was passed
+  const safeBaseRate = inputs.annualInterestRate > 0 ? inputs.annualInterestRate : 7.0;
+  const effectiveComparisonRates: [number, number, number] = [
+    comparisonRates[0] > 0 ? comparisonRates[0] : Math.max(0.5, Number((safeBaseRate - 1).toFixed(2))),
+    comparisonRates[1] > 0 ? comparisonRates[1] : Number(safeBaseRate.toFixed(2)),
+    comparisonRates[2] > 0 ? comparisonRates[2] : Number((safeBaseRate + 1).toFixed(2)),
+  ];
+
   const rateScenarios: RateComparisonScenario[] = calculateRateComparisons(
     outputs.loanAmount,
     inputs.loanTermYears,
-    comparisonRates
+    effectiveComparisonRates
   );
 
   const handlePriceChange = (val: number) => {
@@ -244,6 +253,28 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                   className="w-full pl-9 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl font-extrabold text-slate-900 text-lg focus:bg-white focus:ring-2 focus:ring-[#2B7A55] focus:border-[#2B7A55] transition-all"
                 />
               </div>
+
+              {/* Popular quick price buttons */}
+              <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                <span className="text-[10px] font-bold text-slate-500 uppercase mr-1">
+                  {isEn ? 'Popular:' : 'Frecuentes:'}
+                </span>
+                {[250000, 300000, 350000, 400000, 450000, 500000].map((pr) => (
+                  <button
+                    key={pr}
+                    type="button"
+                    onClick={() => handlePriceChange(pr)}
+                    className={`px-2 py-0.5 text-xs font-bold rounded-lg border transition-all ${
+                      inputs.purchasePrice === pr
+                        ? 'bg-[#2B7A55] text-white border-[#2B7A55]'
+                        : 'bg-white text-slate-700 border-slate-200 hover:border-[#2B7A55] hover:text-[#2B7A55]'
+                    }`}
+                  >
+                    ${pr / 1000}k
+                  </button>
+                ))}
+              </div>
+
               <span className="text-[11px] text-slate-500 font-medium block mt-1">
                 {isEn
                   ? 'Type any exact price with automatic commas, or select directly from the $50k dropdown.'
@@ -519,6 +550,30 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                 <span className="text-[11px] text-slate-600 font-medium block mt-1">
                   {isEn ? 'Generally applies if down payment is under 20%.' : 'Aplica generalmente si el pronto es menor al 20%.'}
                 </span>
+
+                {/* Smart detection if user enters an annual PMI figure (e.g. $1,250) instead of monthly */}
+                {inputs.monthlyPMI > 400 && (
+                  <div className="mt-2.5 p-3 bg-amber-50 border border-amber-300 rounded-xl flex items-start space-x-2.5 text-xs text-amber-900 shadow-2xs">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <span className="font-extrabold text-amber-950 block">
+                        {isEn ? '⚠️ Did you enter ANNUAL PMI instead of MONTHLY?' : '⚠️ ¿Ingresaste el PMI ANUAL en vez de MENSUAL?'}
+                      </span>
+                      <p className="mt-0.5 text-slate-700 leading-snug">
+                        {isEn
+                          ? `If $${new Intl.NumberFormat('en-US').format(inputs.monthlyPMI)} is your annual PMI, your monthly payment is ~$${Math.round(inputs.monthlyPMI / 12)}/mo. (Typical monthly PMI is $100–$220).`
+                          : `Si $${new Intl.NumberFormat('en-US').format(inputs.monthlyPMI)} es lo que pagarías al año, tu cuota mensual real es de ~$${Math.round(inputs.monthlyPMI / 12)}/mes. (El PMI mensual típico está entre $100 y $220).`}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => onUpdateInputs({ monthlyPMI: Math.round(inputs.monthlyPMI / 12) })}
+                        className="mt-2 inline-flex items-center space-x-1.5 px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-xs transition-colors shadow-2xs"
+                      >
+                        <span>{isEn ? `Convert to $${Math.round(inputs.monthlyPMI / 12)}/month` : `Convertir a $${Math.round(inputs.monthlyPMI / 12)}/mes`}</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Monthly HOA */}
@@ -719,9 +774,14 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                   <label htmlFor="inspection-cost-input" className="block text-xs font-bold text-slate-800">
                     {isEn ? 'Independent Home Inspection' : 'Inspección técnica independiente'}
                   </label>
-                  <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded">
-                    {isEn ? 'Ref: $400-$600' : 'Ref: $400-$600'}
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() => onUpdateInputs({ inspectionCost: 500 })}
+                    className="text-[10px] font-bold text-amber-900 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded cursor-pointer transition-colors"
+                    title={isEn ? 'Set to typical $500' : 'Fijar en $500 típico'}
+                  >
+                    + {isEn ? 'Use $500' : 'Usar $500'}
+                  </button>
                 </div>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-sm font-extrabold">
@@ -743,9 +803,14 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                   <label htmlFor="appraisal-cost-input" className="block text-xs font-bold text-slate-800">
                     {isEn ? 'Bank Appraisal (Required)' : 'Tasación del banco (Appraisal)'}
                   </label>
-                  <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded">
-                    {isEn ? 'Ref: $500-$700' : 'Ref: $500-$700'}
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() => onUpdateInputs({ appraisalCost: 600 })}
+                    className="text-[10px] font-bold text-amber-900 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded cursor-pointer transition-colors"
+                    title={isEn ? 'Set to typical $600' : 'Fijar en $600 típico'}
+                  >
+                    + {isEn ? 'Use $600' : 'Usar $600'}
+                  </button>
                 </div>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-sm font-extrabold">
@@ -767,9 +832,14 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                   <label htmlFor="moving-cost-input" className="block text-xs font-bold text-slate-800">
                     {isEn ? 'Moving & Initial Logistics' : 'Mudanza y logística inicial'}
                   </label>
-                  <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded">
-                    {isEn ? 'Ref: $800-$2,000' : 'Ref: $800-$2,000'}
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() => onUpdateInputs({ movingCost: 1200 })}
+                    className="text-[10px] font-bold text-amber-900 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded cursor-pointer transition-colors"
+                    title={isEn ? 'Set to typical $1,200' : 'Fijar en $1,200 típico'}
+                  >
+                    + {isEn ? 'Use $1,200' : 'Usar $1,200'}
+                  </button>
                 </div>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-sm font-extrabold">
@@ -791,9 +861,14 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                   <label htmlFor="initial-repairs-cost-input" className="block text-xs font-bold text-slate-800">
                     {isEn ? 'Initial Repairs & Painting' : 'Reparaciones y pintura inicial'}
                   </label>
-                  <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded">
-                    {isEn ? 'Ref: $1,000-$3,000' : 'Ref: $1,000-$3,000'}
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() => onUpdateInputs({ initialRepairsCost: 1500 })}
+                    className="text-[10px] font-bold text-amber-900 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded cursor-pointer transition-colors"
+                    title={isEn ? 'Set to typical $1,500' : 'Fijar en $1,500 típico'}
+                  >
+                    + {isEn ? 'Use $1,500' : 'Usar $1,500'}
+                  </button>
                 </div>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-sm font-extrabold">
@@ -817,9 +892,14 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                       ? 'Untouchable Post-Closing Emergency Reserve (3 months cushion)'
                       : 'Reserva intocable para emergencias post-compra (3 meses recomendado)'}
                   </label>
-                  <span className="text-[10px] font-bold text-[#2B7A55] bg-[#F1F9EC] border border-[#C7E7A4] px-2 py-0.5 rounded">
-                    {isEn ? 'Essential cushion' : 'Colchón vital'}
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() => onUpdateInputs({ emergencyReserveCost: 5000 })}
+                    className="text-[10px] font-bold text-[#2B7A55] bg-[#F1F9EC] hover:bg-[#E2F3D9] border border-[#C7E7A4] px-2 py-0.5 rounded cursor-pointer transition-colors"
+                    title={isEn ? 'Set to recommended $5,000 cushion' : 'Fijar en $5,000 de colchón'}
+                  >
+                    + {isEn ? 'Use $5,000 cushion' : 'Usar $5,000 colchón'}
+                  </button>
                 </div>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-sm font-extrabold">
@@ -840,6 +920,54 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
                 </span>
               </div>
             </div>
+
+            {/* Live Status Strip for forgotten expenses */}
+            {(() => {
+              const totalForgottenExpenses =
+                (inputs.inspectionCost || 0) +
+                (inputs.appraisalCost || 0) +
+                (inputs.movingCost || 0) +
+                (inputs.initialRepairsCost || 0) +
+                (inputs.emergencyReserveCost || 0);
+
+              if (totalForgottenExpenses === 0) {
+                return (
+                  <div className="mt-4 p-3 bg-amber-100/90 border border-amber-300 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-950 font-medium relative z-10">
+                    <span className="flex items-center space-x-2 font-bold">
+                      <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0" />
+                      <span>
+                        {isEn
+                          ? '⚠️ $0 budgeted for hidden costs: High risk of financial shortfall at closing table.'
+                          : '⚠️ $0 presupuestado para imprevistos: Riesgo alto de quedarte sin dinero en la mesa de cierre.'}
+                      </span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleLoadTypicalUpfrontCosts}
+                      className="font-extrabold text-[#2B7A55] underline hover:text-[#1e583c] self-start sm:self-auto cursor-pointer"
+                    >
+                      {isEn ? 'Click here to load typical ($8.7k) →' : 'Pulsa aquí para cargar típicos ($8.7k) →'}
+                    </button>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="mt-4 p-3 bg-emerald-50 border border-emerald-300 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-emerald-950 relative z-10">
+                  <span className="font-bold flex items-center space-x-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>
+                      {isEn
+                        ? `Shielded for move-in & emergency cushion: ${formatCurrency(totalForgottenExpenses)}`
+                        : `Protegido para mudanza, inspección y colchón familiar: ${formatCurrency(totalForgottenExpenses)}`}
+                    </span>
+                  </span>
+                  <span className="text-[11px] font-extrabold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full self-start sm:self-auto">
+                    {isEn ? 'Included in total cash needed' : 'Sumado en Efectivo Total Necesario'}
+                  </span>
+                </div>
+              );
+            })()}
           </div>
         </div>
 
@@ -1056,41 +1184,46 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
           </div>
 
           {/* Rate inputs with instant real-time sync */}
-          <div className="flex items-center space-x-2.5">
-            {[0, 1, 2].map((idx) => (
-              <div key={idx} className="flex flex-col items-center">
-                <span className="text-[10px] text-slate-500 font-bold uppercase mb-1">
-                  {isEn ? `Scen ${idx + 1}` : `Esc ${idx + 1}`}
-                </span>
-                <div className="relative w-20">
-                  <input
-                    type="number"
-                    step="0.125"
-                    min="0"
-                    max="25"
-                    value={comparisonRates[idx] > 0 ? comparisonRates[idx] : ''}
-                    placeholder={`${idx + 6}.0`}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value) || 0;
-                      const newRates: [number, number, number] = [...comparisonRates] as [number, number, number];
-                      newRates[idx] = val;
-                      onUpdateComparisonRates(newRates);
-                    }}
-                    className="w-full text-center py-1.5 px-1 bg-slate-50 border-2 border-slate-300 rounded-lg text-xs font-extrabold text-slate-900 focus:bg-white focus:border-[#2B7A55] focus:ring-2 focus:ring-[#2B7A55]/20"
-                  />
-                  <span className="absolute right-1 top-1.5 text-[11px] font-bold text-slate-400 pointer-events-none">%</span>
-                </div>
-              </div>
-            ))}
-
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <button
               type="button"
               onClick={handleResetRatesToDefaults}
-              className="self-end mb-0.5 p-1.5 text-slate-400 hover:text-[#2B7A55] hover:bg-slate-100 rounded-lg transition-colors"
-              title={isEn ? 'Reset to base rates' : 'Restablecer tasas'}
+              className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-[#F1F9EC] hover:bg-[#E2F3D9] text-[#2B7A55] border border-[#C7E7A4] rounded-xl text-xs font-bold transition-colors cursor-pointer shadow-2xs self-start sm:self-center"
+              title={isEn ? 'Sync scenarios to base rate (-1% / Base / +1%)' : 'Sincronizar escenarios con tasa base (-1% / Base / +1%)'}
             >
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>{isEn ? `Sync to ${safeBaseRate}%` : `Sincronizar a ${safeBaseRate}%`}</span>
             </button>
+
+            <div className="flex items-center space-x-2">
+              {[0, 1, 2].map((idx) => {
+                const currentVal = comparisonRates[idx] > 0 ? comparisonRates[idx] : effectiveComparisonRates[idx];
+                return (
+                  <div key={idx} className="flex flex-col items-center">
+                    <span className="text-[10px] text-slate-500 font-bold uppercase mb-1">
+                      {isEn ? `Scen ${idx + 1}` : `Esc ${idx + 1}`}
+                    </span>
+                    <div className="relative w-20">
+                      <input
+                        type="number"
+                        step="0.125"
+                        min="0.5"
+                        max="25"
+                        value={currentVal}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value) || 0;
+                          const newRates: [number, number, number] = [...effectiveComparisonRates];
+                          newRates[idx] = val;
+                          onUpdateComparisonRates(newRates);
+                        }}
+                        className="w-full text-center py-1.5 px-1 bg-slate-50 border-2 border-slate-300 rounded-lg text-xs font-extrabold text-slate-900 focus:bg-white focus:border-[#2B7A55] focus:ring-2 focus:ring-[#2B7A55]/20"
+                      />
+                      <span className="absolute right-1 top-1.5 text-[11px] font-bold text-slate-400 pointer-events-none">%</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -1104,61 +1237,76 @@ export const CalculatorModule: React.FC<CalculatorModuleProps> = ({
             return (
               <div
                 key={sc.id}
-                className={`rounded-xl p-5 border-2 transition-all ${
+                className={`rounded-xl p-5 border-2 transition-all flex flex-col justify-between ${
                   isBase 
                     ? 'border-[#2B7A55] bg-[#F1F9EC]/50 shadow-xs' 
                     : 'border-slate-200 bg-slate-50/70 hover:bg-white'
                 }`}
               >
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-xs font-extrabold uppercase text-[#102C46]">
-                    {scenarioName}
-                  </span>
-                  {isBase && (
-                    <span className="text-[10px] font-bold uppercase tracking-wider bg-[#2B7A55] text-white px-2 py-0.5 rounded-full">
-                      Base
+                <div>
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-xs font-extrabold uppercase text-[#102C46]">
+                      {scenarioName}
                     </span>
-                  )}
+                    {isBase && (
+                      <span className="text-[10px] font-bold uppercase tracking-wider bg-[#2B7A55] text-white px-2 py-0.5 rounded-full">
+                        Base
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="text-2xl font-extrabold text-[#102C46] mb-4">
+                    {formatCurrency(sc.monthlyPayment)}
+                    <span className="text-xs font-normal text-slate-500"> {isEn ? '/ mo (P&I)' : '/ mes (P&I)'}</span>
+                  </div>
+
+                  <div className="space-y-2 text-xs border-t border-slate-200 pt-3 text-slate-600">
+                    <div className="flex justify-between">
+                      <span>{isEn ? 'Monthly difference:' : 'Diferencia mensual:'}</span>
+                      <span className={`font-bold ${sc.monthlyDifferenceVsBase > 0 ? 'text-red-700' : sc.monthlyDifferenceVsBase < 0 ? 'text-green-700' : 'text-slate-700'}`}>
+                        {sc.monthlyDifferenceVsBase === 0 
+                          ? (isEn ? '$0 (Baseline)' : '$0 (Referencia)') 
+                          : `${sc.monthlyDifferenceVsBase > 0 ? '+' : ''}${formatCurrency(sc.monthlyDifferenceVsBase)} / ${isEn ? 'mo' : 'mes'}`}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span>{isEn ? 'Annual difference:' : 'Diferencia anual:'}</span>
+                      <span className="font-semibold text-slate-800">
+                        {sc.annualDifferenceVsBase === 0 
+                          ? '$0' 
+                          : `${sc.annualDifferenceVsBase > 0 ? '+' : ''}${formatCurrency(sc.annualDifferenceVsBase)} / ${isEn ? 'yr' : 'año'}`}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span>{isEn ? `Difference over ${inputs.loanTermYears} yrs:` : `Diferencia en ${inputs.loanTermYears} años:`}</span>
+                      <span className="font-bold text-[#102C46]">
+                        {sc.lifetimeDifferenceVsBase === 0 
+                          ? '$0' 
+                          : `${sc.lifetimeDifferenceVsBase > 0 ? '+' : ''}${formatCurrency(sc.lifetimeDifferenceVsBase)}`}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between pt-1 border-t border-slate-200/60 text-[11px] text-slate-500">
+                      <span>{isEn ? 'Total interest paid:' : 'Interés total pagado:'}</span>
+                      <span className="font-semibold text-slate-800">{formatCurrency(sc.totalInterestPaid)}</span>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="text-2xl font-extrabold text-[#102C46] mb-4">
-                  {formatCurrency(sc.monthlyPayment)}
-                  <span className="text-xs font-normal text-slate-500"> {isEn ? '/ mo (P&I)' : '/ mes (P&I)'}</span>
-                </div>
-
-                <div className="space-y-2 text-xs border-t border-slate-200 pt-3 text-slate-600">
-                  <div className="flex justify-between">
-                    <span>{isEn ? 'Monthly difference:' : 'Diferencia mensual:'}</span>
-                    <span className={`font-bold ${sc.monthlyDifferenceVsBase > 0 ? 'text-red-700' : sc.monthlyDifferenceVsBase < 0 ? 'text-green-700' : 'text-slate-700'}`}>
-                      {sc.monthlyDifferenceVsBase === 0 
-                        ? (isEn ? '$0 (Baseline)' : '$0 (Referencia)') 
-                        : `${sc.monthlyDifferenceVsBase > 0 ? '+' : ''}${formatCurrency(sc.monthlyDifferenceVsBase)} / ${isEn ? 'mo' : 'mes'}`}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between">
-                    <span>{isEn ? 'Annual difference:' : 'Diferencia anual:'}</span>
-                    <span className="font-semibold text-slate-800">
-                      {sc.annualDifferenceVsBase === 0 
-                        ? '$0' 
-                        : `${sc.annualDifferenceVsBase > 0 ? '+' : ''}${formatCurrency(sc.annualDifferenceVsBase)} / ${isEn ? 'yr' : 'año'}`}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between">
-                    <span>{isEn ? `Difference over ${inputs.loanTermYears} yrs:` : `Diferencia en ${inputs.loanTermYears} años:`}</span>
-                    <span className="font-bold text-[#102C46]">
-                      {sc.lifetimeDifferenceVsBase === 0 
-                        ? '$0' 
-                        : `${sc.lifetimeDifferenceVsBase > 0 ? '+' : ''}${formatCurrency(sc.lifetimeDifferenceVsBase)}`}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between pt-1 border-t border-slate-200/60 text-[11px] text-slate-500">
-                    <span>{isEn ? 'Total interest paid:' : 'Interés total pagado:'}</span>
-                    <span className="font-semibold text-slate-800">{formatCurrency(sc.totalInterestPaid)}</span>
-                  </div>
-                </div>
+                {/* 1-Click apply scenario rate to main calculator */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    onUpdateInputs({ annualInterestRate: sc.rate });
+                    const el = document.getElementById('purchase-price-input');
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                  className="w-full mt-4 py-2 px-3 bg-white hover:bg-[#2B7A55] text-slate-700 hover:text-white border border-slate-200 hover:border-[#2B7A55] rounded-xl text-xs font-bold transition-all shadow-2xs text-center cursor-pointer"
+                >
+                  {isEn ? `Apply ${sc.rate.toFixed(2)}% to calculator ↑` : `Aplicar ${sc.rate.toFixed(2)}% al cálculo ↑`}
+                </button>
               </div>
             );
           })}

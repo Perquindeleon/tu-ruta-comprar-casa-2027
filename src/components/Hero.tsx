@@ -6,9 +6,10 @@ import { useLanguage } from '../context/LanguageContext';
 interface HeroProps {
   onStartDiagnostic: () => void;
   onGoToCalculator: () => void;
+  onGoToFloridaIncentives?: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onStartDiagnostic, onGoToCalculator }) => {
+export const Hero: React.FC<HeroProps> = ({ onStartDiagnostic, onGoToCalculator, onGoToFloridaIncentives }) => {
   const { lang } = useLanguage();
   const isEn = lang === 'en';
   const appConfig = getAppConfig(lang);
@@ -57,7 +58,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartDiagnostic, onGoToCalculator 
           </div>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
             <button
               onClick={onStartDiagnostic}
               className="w-full sm:w-auto inline-flex items-center justify-center space-x-3 bg-[#2B7A55] hover:bg-[#36986A] text-white px-8 py-4 rounded-xl text-base sm:text-lg font-bold shadow-lg shadow-[#2B7A55]/30 transition-all transform hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-[#C7E7A4]"
@@ -74,6 +75,20 @@ export const Hero: React.FC<HeroProps> = ({ onStartDiagnostic, onGoToCalculator 
               <span>{isEn ? 'CALCULATE HOW MUCH A HOME WOULD COST' : 'CALCULAR CUÁNTO ME COSTARÍA UNA CASA'}</span>
             </button>
           </div>
+
+          {/* Builder Incentives Direct Discovery Pill */}
+          {onGoToFloridaIncentives && (
+            <div className="mb-10">
+              <button
+                type="button"
+                onClick={onGoToFloridaIncentives}
+                className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#D5AD57]/20 to-[#C7E7A4]/20 hover:from-[#D5AD57]/30 hover:to-[#C7E7A4]/30 border border-[#C7E7A4]/60 text-[#C7E7A4] hover:text-white px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all shadow-sm cursor-pointer transform hover:-translate-y-0.5"
+              >
+                <span>🏡</span>
+                <span>{isEn ? 'Special Central Florida Builder Incentives (Nov 2026) →' : 'Especial: Incentivos de Constructoras en Florida Central →'}</span>
+              </button>
+            </div>
+          )}
 
           {/* Feature Badges */}
           <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs sm:text-sm text-white font-medium border-t border-slate-700 pt-8 max-w-3xl mx-auto">

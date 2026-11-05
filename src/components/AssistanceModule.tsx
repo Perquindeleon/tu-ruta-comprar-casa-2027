@@ -14,11 +14,13 @@ import { useLanguage } from '../context/LanguageContext';
 interface AssistanceModuleProps {
   selectedState?: string;
   onSelectState: (stateCode: string) => void;
+  onGoToFloridaIncentives?: () => void;
 }
 
 export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
   selectedState,
   onSelectState,
+  onGoToFloridaIncentives,
 }) => {
   const { lang } = useLanguage();
   const isEn = lang === 'en';
@@ -145,6 +147,37 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
               className="text-[#2B7A55] hover:underline font-semibold"
             >
               {isEn ? 'View all states' : 'Ver todos los estados'}
+            </button>
+          </div>
+        )}
+
+        {/* Florida Central New Construction Special Banner */}
+        {(!selectedState || selectedState === 'FL') && onGoToFloridaIncentives && (
+          <div className="mt-4 p-4 bg-gradient-to-r from-[#102C46] to-[#1e583c] rounded-xl text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm border border-[#C7E7A4]/30">
+            <div className="flex items-center space-x-3">
+              <span className="text-2xl">🏡</span>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs font-black uppercase tracking-wider text-[#C7E7A4]">
+                    {isEn ? 'Special Central Florida Guide • Nov 2026' : 'Especial Florida Central • Noviembre 2026'}
+                  </span>
+                  <span className="bg-[#D5AD57] text-[#102C46] text-[10px] font-extrabold px-1.5 py-0.2 rounded">
+                    HOT
+                  </span>
+                </div>
+                <p className="text-xs text-slate-200 mt-0.5">
+                  {isEn
+                    ? 'Explore 11 Central Florida homebuilders offering mortgage rates from 3.99% and up to $25k in closing credits.'
+                    : 'Compara 11 constructoras en Florida Central con tasas de interés desde 3.99% y hasta $25,000 para gastos de cierre.'}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onGoToFloridaIncentives}
+              className="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-[#C7E7A4] hover:bg-white text-[#102C46] text-xs font-bold rounded-lg transition-all shrink-0 cursor-pointer shadow-2xs"
+            >
+              <span>{isEn ? 'View Builders Directory →' : 'Ver Incentivos de Constructoras →'}</span>
             </button>
           </div>
         )}

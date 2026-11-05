@@ -102,6 +102,16 @@ const KNOWLEDGE_BASE: QuickTopic[] = [
     replyEn: 'The 2027 timeline gives you the ultimate advantage: unhurried preparation. It lets you optimize credit score by 50-80 points (saving $200-$400/mo in interest), build reserves, and negotiate with total peace of mind.',
     targetId: 'diagnostico',
   },
+  {
+    id: 'florida_builders',
+    label: '🏡 Incentivos Florida (Constructoras)',
+    labelEn: '🏡 FL Builder Incentives',
+    keywords: ['florida', 'constructora', 'constructoras', 'builder', 'lennar', 'pulte', 'horton', 'hometown', 'orlando', 'tampa', 'nueva construccion'],
+    replyEs: '¡Tenemos una guía exclusiva de Florida Central de Noviembre 2026! Constructoras líderes (Lennar, Pulte, D.R. Horton, etc.) están ofreciendo tasas fijas reducidas desde 3.99% y créditos de cierre de hasta $25,000.',
+    replyEn: 'We have an exclusive Central Florida guide updated for November 2026! Leading builders (Lennar, Pulte, D.R. Horton, etc.) are offering promotional rates from 3.99% and up to $25,000 in closing credits.',
+    externalUrl: '/incentivos-florida',
+    externalLabel: 'Ver Incentivos Florida',
+  },
 ];
 
 export const AssistantChatbot: React.FC<{ onNavigateToSection: (id: string) => void }> = ({
@@ -148,6 +158,10 @@ export const AssistantChatbot: React.FC<{ onNavigateToSection: (id: string) => v
         label: isEn ? 'Go to this section in the app' : 'Ir a esta sección en la herramienta',
         targetId: topic.targetId,
       } : undefined,
+      externalLink: topic.externalUrl ? {
+        label: topic.externalLabel || (isEn ? 'Open link' : 'Ver enlace'),
+        url: topic.externalUrl,
+      } : undefined,
     };
 
     setMessages((prev) => [...prev, userMsg, botMsg]);
@@ -171,10 +185,14 @@ export const AssistantChatbot: React.FC<{ onNavigateToSection: (id: string) => v
 
     let botReplyText = '';
     let targetId: string | undefined;
+    let externalUrl: string | undefined;
+    let externalLabel: string | undefined;
 
     if (matched) {
       botReplyText = isEn ? matched.replyEn : matched.replyEs;
       targetId = matched.targetId;
+      externalUrl = matched.externalUrl;
+      externalLabel = matched.externalLabel;
     } else {
       botReplyText = isEn
         ? "That is a great question. Remember our philosophy: don't buy just because a bank approves you, buy because the numbers make sense for you. You can run custom simulations in our Calculator or check your state assistance programs in Module D."
@@ -189,6 +207,10 @@ export const AssistantChatbot: React.FC<{ onNavigateToSection: (id: string) => v
       actionLink: targetId ? {
         label: isEn ? 'Explore section in the app' : 'Ver sección en la herramienta',
         targetId,
+      } : undefined,
+      externalLink: externalUrl ? {
+        label: externalLabel || (isEn ? 'Open link' : 'Ver enlace'),
+        url: externalUrl,
       } : undefined,
     };
 
@@ -330,6 +352,17 @@ export const AssistantChatbot: React.FC<{ onNavigateToSection: (id: string) => v
                         <span>{msg.actionLink.label}</span>
                         <ExternalLink className="w-3 h-3 ml-0.5" />
                       </button>
+                    )}
+
+                    {/* External Link button (e.g. Florida Incentives page) */}
+                    {msg.externalLink && (
+                      <a
+                        href={msg.externalLink.url}
+                        className="mt-2.5 inline-flex items-center space-x-1 text-[11px] font-bold text-[#102C46] bg-[#C7E7A4] hover:bg-[#b8de91] px-2.5 py-1 rounded-md transition-colors shadow-2xs"
+                      >
+                        <span>{msg.externalLink.label}</span>
+                        <ExternalLink className="w-3 h-3 ml-0.5" />
+                      </a>
                     )}
                   </div>
                 </div>

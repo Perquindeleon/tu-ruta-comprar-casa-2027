@@ -132,8 +132,12 @@ export function calculateRateComparisons(
   const safeYears = Math.max(1, termYears);
   const totalMonths = safeYears * 12;
 
-  const scenarios: RateComparisonScenario[] = rates.map((rate, index) => {
-    const safeRate = Math.max(0, rate);
+  const defaultRates: [number, number, number] = [6.0, 7.0, 8.0];
+
+  const scenarios: RateComparisonScenario[] = rates.map((rawRate, index) => {
+    // If rate is missing or <= 0, fallback to default rate to prevent showing 0.00% / $0 interest
+    const parsedRate = Number(rawRate);
+    const safeRate = !isNaN(parsedRate) && parsedRate > 0 ? parsedRate : defaultRates[index] || 6.5;
     const monthlyPayment = calculateMonthlyPrincipalAndInterest(safeLoan, safeRate, safeYears);
     const totalPayments = monthlyPayment * totalMonths;
     const totalInterestPaid = Math.max(0, totalPayments - safeLoan);

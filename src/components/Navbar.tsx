@@ -7,9 +7,15 @@ interface NavbarProps {
   onNavigate: (sectionId: string) => void;
   onOpenPdf: () => void;
   onResetSession?: () => void;
+  onGoToFloridaIncentives?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onOpenPdf, onResetSession }) => {
+export const Navbar: React.FC<NavbarProps> = ({ 
+  onNavigate, 
+  onOpenPdf, 
+  onResetSession,
+  onGoToFloridaIncentives 
+}) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { lang, setLang } = useLanguage();
   const isEn = lang === 'en';
@@ -61,6 +67,19 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onOpenPdf, onResetSe
                 {item.label}
               </button>
             ))}
+
+            {onGoToFloridaIncentives && (
+              <button
+                type="button"
+                onClick={onGoToFloridaIncentives}
+                className="ml-2 inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-[#2B7A55] text-white hover:brightness-110 text-xs font-bold shadow-xs transition-all border border-emerald-400/40"
+              >
+                <span>🏡 {isEn ? 'Florida New Homes' : 'Incentivos Florida'}</span>
+                <span className="bg-[#C7E7A4] text-emerald-950 text-[9px] px-1.5 py-0.5 rounded-full font-black uppercase">
+                  Nov 2026
+                </span>
+              </button>
+            )}
           </div>
 
           {/* Header Actions: Language Switcher & Generate PDF */}
@@ -181,6 +200,25 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onOpenPdf, onResetSe
               <span>{item.label}</span>
             </button>
           ))}
+
+          {onGoToFloridaIncentives && (
+            <button
+              type="button"
+              onClick={() => {
+                onGoToFloridaIncentives();
+                setMobileMenuOpen(false);
+              }}
+              className="w-full text-left flex items-center justify-between px-3 py-3 rounded-lg bg-gradient-to-r from-emerald-700 to-[#2B7A55] text-white font-bold text-sm"
+            >
+              <span className="flex items-center space-x-2">
+                <span>🏡</span>
+                <span>{isEn ? 'Florida New Homes & Incentives' : 'Casas Nuevas e Incentivos Florida'}</span>
+              </span>
+              <span className="bg-[#C7E7A4] text-emerald-950 text-[10px] px-2 py-0.5 rounded-full font-black">
+                Nov 2026
+              </span>
+            </button>
+          )}
           <div className="pt-2">
             <button
               onClick={() => {
