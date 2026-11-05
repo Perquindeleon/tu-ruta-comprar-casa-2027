@@ -19,7 +19,11 @@ import {
   Calendar,
   Layers,
   RefreshCw,
-  FileSpreadsheet
+  FileSpreadsheet,
+  MapPin,
+  SlidersHorizontal,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { 
   FLORIDA_BUILDERS_DATA, 
@@ -89,6 +93,10 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
   
   // Auto-expiration filter state (by default, hide expired offers)
   const [hideExpired, setHideExpired] = useState<boolean>(true);
+
+  // Slim dismissible/expandable Balloon loan notice
+  const [showBalloonNotice, setShowBalloonNotice] = useState<boolean>(true);
+  const [isBalloonNoticeExpanded, setIsBalloonNoticeExpanded] = useState<boolean>(false);
 
   // Modal state
   const [modalBuilder, setModalBuilder] = useState<BuilderIncentive | null>(null);
@@ -289,152 +297,143 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800">
-      {/* Header Banner */}
-      <header className="bg-gradient-to-r from-[#102C46] via-[#163654] to-[#0B1E30] text-white shadow-md sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      {/* Top Header Strip: Ultra-clean & compact */}
+      <div className="bg-[#0B1E30] text-white border-b border-slate-800 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
           
+          {/* Breadcrumb Back Button + Page Title */}
           <div className="flex items-center space-x-3">
             <button
               type="button"
               onClick={onBackToMain}
-              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-[#C7E7A4] transition-colors flex items-center gap-1.5 text-xs font-bold cursor-pointer"
+              className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-[#C7E7A4] transition-colors flex items-center gap-1.5 text-xs font-bold cursor-pointer"
               title={isEn ? 'Return to 2027 Roadmap' : 'Volver a Tu Ruta 2027'}
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">{isEn ? 'Main Tool' : 'Tu Ruta 2027'}</span>
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>{isEn ? 'Tu Ruta 2027' : 'Volver'}</span>
             </button>
 
-            <div className="w-10 h-10 rounded-xl bg-[#2B7A55] border border-[#C7E7A4]/30 flex items-center justify-center text-white shadow-inner font-black text-lg">
-              FL
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-xl font-bold tracking-tight text-white">
-                  {isEn ? 'Florida Statewide • New Homes Incentives' : 'Florida • Incentivos de Constructoras'}
-                </h1>
-                <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] px-2.5 py-0.5 rounded-full font-medium inline-flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  {isEn ? `Active: ${currentMonthYear}` : `Vigentes: ${currentMonthYear}`}
-                </span>
-              </div>
-              <p className="text-xs text-slate-300">
-                {isEn
-                  ? 'Official statewide comparison: Orlando, Tampa, Miami, Jacksonville, Southwest FL & beyond. Expiration dates, rate structures and closing credits'
-                  : 'Comparativa oficial en todo Florida: Orlando, Tampa, Miami, Jacksonville, Suroeste y más. Fechas de vencimiento, tipo de tasa y gastos de cierre'}
-              </p>
+            <div className="h-5 w-px bg-slate-700 hidden sm:block" />
+
+            <div className="flex items-center gap-2">
+              <h1 className="text-sm sm:text-base font-bold text-white tracking-tight">
+                {isEn ? 'Florida • New Homes Builder Incentives' : 'Florida • Incentivos de Constructoras'}
+              </h1>
+              <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                {currentMonthYear}
+              </span>
             </div>
           </div>
 
-          {/* Quick Market Stats & Language Switcher */}
-          <div className="flex items-center gap-2 sm:gap-3 text-xs">
-            <div className="bg-slate-800/80 border border-slate-700/60 rounded-lg px-2.5 py-1.5 hidden sm:block">
-              <span className="text-slate-400 block text-[9px] uppercase font-semibold">{isEn ? 'Market Rate' : 'Tasa Mercado'}</span>
-              <span className="text-rose-400 font-bold text-xs sm:text-sm">~6.75% Fija</span>
+          {/* Quick Benchmark Stats (Compact inline glass pills) */}
+          <div className="flex items-center gap-2 text-[11px]">
+            <div className="bg-slate-800/90 border border-slate-700/80 rounded-lg px-2.5 py-1 hidden sm:flex items-center gap-1.5">
+              <span className="text-slate-400">{isEn ? 'Market Rate:' : 'Tasa Mercado:'}</span>
+              <span className="text-rose-400 font-bold">~6.75%</span>
             </div>
-            <div className="bg-[#2B7A55]/40 border border-[#2B7A55] rounded-lg px-2.5 py-1.5">
-              <span className="text-emerald-300 block text-[9px] uppercase font-semibold">{isEn ? 'Builder Rates' : 'Tasa Constructora'}</span>
-              <span className="text-emerald-300 font-bold text-xs sm:text-sm">3.25% - 5.50%</span>
+            <div className="bg-emerald-950/70 border border-emerald-700/60 rounded-lg px-2.5 py-1 flex items-center gap-1.5">
+              <span className="text-emerald-400">{isEn ? 'Builder Rates:' : 'Constructoras:'}</span>
+              <span className="text-emerald-300 font-bold">3.25% - 5.50%</span>
             </div>
-            <div className="bg-slate-800/80 border border-slate-700/60 rounded-lg px-2.5 py-1.5 hidden md:block">
-              <span className="text-slate-400 block text-[9px] uppercase font-semibold">{isEn ? 'Max Closing Credit' : 'Crédito Cierre Máx'}</span>
-              <span className="text-[#D5AD57] font-bold text-xs sm:text-sm">{isEn ? 'Up to $25,000' : 'Hasta $25,000'}</span>
+            <div className="bg-amber-950/40 border border-amber-700/50 rounded-lg px-2.5 py-1 hidden md:flex items-center gap-1.5">
+              <span className="text-amber-400">{isEn ? 'Closing Credit:' : 'Crédito Cierre:'}</span>
+              <span className="text-[#D5AD57] font-bold">{isEn ? 'Up to $25,000' : 'Hasta $25,000'}</span>
             </div>
-
-            {/* Language toggle */}
-            <button
-              type="button"
-              onClick={() => setLang(isEn ? 'es' : 'en')}
-              className="inline-flex items-center space-x-1 bg-white/10 hover:bg-white/20 border border-[#C7E7A4]/40 text-[#C7E7A4] px-2 py-1.5 rounded-lg text-xs font-bold cursor-pointer"
-            >
-              <Globe className="w-3.5 h-3.5" />
-              <span>{isEn ? 'ES' : 'EN'}</span>
-            </button>
           </div>
+
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="bg-[#0B1E30] border-t border-slate-800 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto flex space-x-6 overflow-x-auto text-sm">
+        {/* View Switcher: Segmented Control Tabs */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-2.5 flex items-center justify-between overflow-x-auto gap-4">
+          <div className="inline-flex p-1 bg-slate-900/90 rounded-xl border border-slate-800 text-xs">
             <button
               onClick={() => setActiveTab('builders')}
-              className={`py-3 transition flex items-center gap-2 whitespace-nowrap text-xs sm:text-sm font-bold border-b-2 cursor-pointer ${
+              className={`px-3 sm:px-4 py-1.5 rounded-lg font-bold transition flex items-center gap-2 cursor-pointer ${
                 activeTab === 'builders'
-                  ? 'text-[#C7E7A4] border-[#C7E7A4]'
-                  : 'text-slate-400 border-transparent hover:text-white'
+                  ? 'bg-[#2B7A55] text-white shadow-xs'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
-              <Building2 className="w-4 h-4" />
+              <Building2 className="w-3.5 h-3.5" />
               <span>{isEn ? `Builders Directory (${activeOffersCount})` : `Directorio de Constructoras (${activeOffersCount})`}</span>
             </button>
 
             <button
               onClick={() => setActiveTab('calculator')}
-              className={`py-3 transition flex items-center gap-2 whitespace-nowrap text-xs sm:text-sm font-bold border-b-2 cursor-pointer ${
+              className={`px-3 sm:px-4 py-1.5 rounded-lg font-bold transition flex items-center gap-2 cursor-pointer ${
                 activeTab === 'calculator'
-                  ? 'text-[#C7E7A4] border-[#C7E7A4]'
-                  : 'text-slate-400 border-transparent hover:text-white'
+                  ? 'bg-[#2B7A55] text-white shadow-xs'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
-              <Calculator className="w-4 h-4" />
-              <span>{isEn ? 'Mortgage Savings Simulator' : 'Calculadora de Ahorro Hipotecario'}</span>
+              <Calculator className="w-3.5 h-3.5" />
+              <span>{isEn ? 'Savings Simulator' : 'Calculadora de Ahorro'}</span>
             </button>
 
             <button
               onClick={() => setActiveTab('guide')}
-              className={`py-3 transition flex items-center gap-2 whitespace-nowrap text-xs sm:text-sm font-bold border-b-2 cursor-pointer ${
+              className={`px-3 sm:px-4 py-1.5 rounded-lg font-bold transition flex items-center gap-2 cursor-pointer ${
                 activeTab === 'guide'
-                  ? 'text-[#C7E7A4] border-[#C7E7A4]'
-                  : 'text-slate-400 border-transparent hover:text-white'
+                  ? 'bg-[#2B7A55] text-white shadow-xs'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
-              <BookOpen className="w-4 h-4" />
-              <span>{isEn ? 'First-Time Buyer Guide & Programs' : 'Guía y Programas Primer Comprador'}</span>
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>{isEn ? 'First-Time Buyer Guide' : 'Guía Primer Comprador'}</span>
             </button>
           </div>
+
+          <span className="text-[11px] text-slate-400 hidden md:block">
+            {isEn ? 'Statewide Florida • 30-Yr Amortized • No Balloon Mortgages' : 'Todo Florida • Amortizadas a 30 Años • 100% Sin Balloon'}
+          </span>
         </div>
-      </header>
+      </div>
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5">
 
         {/* VIEW 1: BUILDERS DIRECTORY & FILTERS */}
         {activeTab === 'builders' && (
-          <div className="space-y-6">
+          <div className="space-y-4">
             
-            {/* Filter Bar */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+            {/* Streamlined Filter Bar */}
+            <div className="bg-white rounded-2xl shadow-xs border border-slate-200 p-4 space-y-3.5">
+              
+              {/* Row 1: Search + Location + Sort */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
                 
                 {/* Search input */}
-                <div>
-                  <label htmlFor="fl-search" className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    {isEn ? 'Search Builder / Area' : 'Buscar Constructora / Zona'}
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      id="fl-search"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder={isEn ? 'Lennar, Davenport, Lake Nona...' : 'Lennar, Davenport, Lake Nona...'}
-                      className="w-full text-xs sm:text-sm border border-slate-300 rounded-xl pl-9 pr-3 py-2 focus:ring-2 focus:ring-[#2B7A55] focus:outline-none"
-                    />
-                    <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                  </div>
+                <div className="lg:col-span-6 relative">
+                  <input
+                    type="text"
+                    id="fl-search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={isEn ? 'Search builder, city or county (Lennar, Tampa, Orlando...)' : 'Buscar constructora, ciudad o condado (Lennar, Tampa, Orlando...)'}
+                    className="w-full text-xs sm:text-sm border border-slate-300 rounded-xl pl-9 pr-8 py-2.5 focus:ring-2 focus:ring-[#2B7A55] focus:outline-none"
+                  />
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
 
-                {/* Region / County filter */}
-                <div>
-                  <label htmlFor="fl-location" className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    {isEn ? 'Region / County' : 'Región / Condado'}
-                  </label>
+                {/* Region / County Selector */}
+                <div className="lg:col-span-3 relative">
                   <select
                     id="fl-location"
                     value={selectedLocation}
                     onChange={(e) => setSelectedLocation(e.target.value)}
-                    className="w-full text-xs sm:text-sm border border-slate-300 rounded-xl px-3 py-2 bg-white focus:ring-2 focus:ring-[#2B7A55] focus:outline-none cursor-pointer"
+                    className="w-full text-xs sm:text-sm border border-slate-300 rounded-xl pl-8 pr-8 py-2.5 bg-white focus:ring-2 focus:ring-[#2B7A55] focus:outline-none cursor-pointer truncate"
                   >
-                    <option value="all">{isEn ? 'All Florida (Statewide)' : 'Todo Florida (Todo el Estado)'}</option>
+                    <option value="all">{isEn ? '📍 All Florida (Statewide)' : '📍 Todo Florida (Todo el Estado)'}</option>
                     <optgroup label={isEn ? 'Major Florida Regions' : 'Regiones Principales de Florida'}>
                       {Object.entries(FLORIDA_REGIONS).map(([key, reg]) => (
                         <option key={key} value={`region:${key}`}>
@@ -452,75 +451,90 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
                       </optgroup>
                     )}
                   </select>
+                  <MapPin className="w-4 h-4 text-slate-400 absolute left-2.5 top-3 pointer-events-none" />
                 </div>
 
-                {/* Rate Structure filter */}
-                <div>
-                  <label htmlFor="fl-structure" className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    {isEn ? 'Rate Structure' : 'Estructura de Tasa'}
-                  </label>
-                  <select
-                    id="fl-structure"
-                    value={selectedStructure}
-                    onChange={(e) => setSelectedStructure(e.target.value as any)}
-                    className="w-full text-xs sm:text-sm border border-slate-300 rounded-xl px-3 py-2 bg-white focus:ring-2 focus:ring-[#2B7A55] focus:outline-none cursor-pointer"
-                  >
-                    <option value="all">{isEn ? 'All Structures' : 'Todas las Estructuras'}</option>
-                    <option value="fixed">{isEn ? '30-Year Fixed Only' : 'Solo Tasa Fija 30 Años'}</option>
-                    <option value="buydown">{isEn ? 'Temporary Buydown (2/1)' : 'Solo Buydown Temporal (2/1)'}</option>
-                    <option value="arm">{isEn ? 'Adjustable / ARM (5/1)' : 'Solo Variable / ARM (5/1)'}</option>
-                  </select>
-                </div>
-
-                {/* Incentive filter */}
-                <div>
-                  <label htmlFor="fl-incentive" className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    {isEn ? 'Savings Filter' : 'Filtro de Ahorro'}
-                  </label>
-                  <select
-                    id="fl-incentive"
-                    value={selectedIncentive}
-                    onChange={(e) => setSelectedIncentive(e.target.value)}
-                    className="w-full text-xs sm:text-sm border border-slate-300 rounded-xl px-3 py-2 bg-white focus:ring-2 focus:ring-[#2B7A55] focus:outline-none cursor-pointer"
-                  >
-                    <option value="all">{isEn ? 'All Benefit Levels' : 'Todos los Niveles'}</option>
-                    <option value="rate-sub5">{isEn ? 'Rate Under 5.0%' : 'Tasa Menor a 5.0%'}</option>
-                    <option value="closing-20k">{isEn ? 'Closing Credit $20k+' : 'Gastos Cierre $20,000+'}</option>
-                    <option value="first-time">{isEn ? 'First-Time Buyer Perk' : 'Beneficio Primer Comprador'}</option>
-                  </select>
-                </div>
-
-                {/* Sort by */}
-                <div>
-                  <label htmlFor="fl-sort" className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    {isEn ? 'Sort By' : 'Ordenar Por'}
-                  </label>
+                {/* Sort Selector */}
+                <div className="lg:col-span-3">
                   <select
                     id="fl-sort"
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as any)}
-                    className="w-full text-xs sm:text-sm border border-slate-300 rounded-xl px-3 py-2 bg-white focus:ring-2 focus:ring-[#2B7A55] focus:outline-none cursor-pointer"
+                    className="w-full text-xs sm:text-sm border border-slate-300 rounded-xl px-3 py-2.5 bg-white focus:ring-2 focus:ring-[#2B7A55] focus:outline-none cursor-pointer"
                   >
-                    <option value="rate-asc">{isEn ? 'Lowest Initial Rate' : 'Menor Tasa de Entrada'}</option>
-                    <option value="closing-desc">{isEn ? 'Highest Closing Credit' : 'Mayor Crédito Gastos Cierre'}</option>
-                    <option value="expiry-asc">{isEn ? 'Expiring Soonest' : 'Vencimiento Más Próximo'}</option>
-                    <option value="name-asc">{isEn ? 'Builder Name (A-Z)' : 'Nombre Constructora (A-Z)'}</option>
+                    <option value="rate-asc">{isEn ? '⇅ Lowest Initial Rate' : '⇅ Menor Tasa de Entrada'}</option>
+                    <option value="closing-desc">{isEn ? '⇅ Highest Closing Credit' : '⇅ Mayor Crédito Gastos Cierre'}</option>
+                    <option value="expiry-asc">{isEn ? '⇅ Expiring Soonest' : '⇅ Vencimiento Más Próximo'}</option>
+                    <option value="name-asc">{isEn ? '⇅ Builder Name (A-Z)' : '⇅ Nombre Constructora (A-Z)'}</option>
                   </select>
                 </div>
 
               </div>
 
-              {/* Status bar, live sheet badge & auto-expiration toggle */}
-              <div className="mt-4 pt-3.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span>
+              {/* Row 2: Quick Filter Pills (Structure & Benefits) */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-2.5 border-t border-slate-100 text-xs">
+                
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase mr-1">
+                    {isEn ? 'Structure:' : 'Estructura:'}
+                  </span>
+                  
+                  {[
+                    { id: 'all', labelEs: 'Todas', labelEn: 'All' },
+                    { id: 'fixed', labelEs: 'Fija 30 Años', labelEn: '30-Yr Fixed' },
+                    { id: 'buydown', labelEs: 'Buydown 2/1', labelEn: '2/1 Buydown' },
+                    { id: 'arm', labelEs: 'ARM 5/1', labelEn: 'ARM 5/1' },
+                  ].map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => setSelectedStructure(s.id as any)}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer border ${
+                        selectedStructure === s.id
+                          ? 'bg-[#102C46] text-white border-[#102C46]'
+                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      {isEn ? s.labelEn : s.labelEs}
+                    </button>
+                  ))}
+
+                  <span className="text-slate-300 mx-1">|</span>
+
+                  <span className="text-[11px] font-bold text-slate-500 uppercase mr-1">
+                    {isEn ? 'Benefit:' : 'Beneficio:'}
+                  </span>
+
+                  {[
+                    { id: 'rate-sub5', labelEs: 'Tasa < 5.0%', labelEn: 'Rate < 5.0%' },
+                    { id: 'closing-20k', labelEs: 'Cierre $20k+', labelEn: 'Credit $20k+' },
+                    { id: 'first-time', labelEs: 'Primer Comprador', labelEn: 'First-Time' },
+                  ].map((b) => (
+                    <button
+                      key={b.id}
+                      type="button"
+                      onClick={() => setSelectedIncentive(selectedIncentive === b.id ? 'all' : b.id)}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer border ${
+                        selectedIncentive === b.id
+                          ? 'bg-[#2B7A55] text-white border-[#2B7A55]'
+                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      {isEn ? b.labelEn : b.labelEs}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Status Meta, Live Sheets & Reset */}
+                <div className="flex flex-wrap items-center gap-3 text-slate-600">
+                  <span className="text-[11px]">
                     {isEn ? (
                       <>
-                        Showing <strong className="text-[#2B7A55] font-extrabold">{filteredBuilders.length}</strong> of {totalOffersCount} offers ({activeOffersCount} active).
+                        <strong className="text-[#2B7A55] font-extrabold">{filteredBuilders.length}</strong> of {totalOffersCount} offers ({activeOffersCount} active)
                       </>
                     ) : (
                       <>
-                        Mostrando <strong className="text-[#2B7A55] font-extrabold">{filteredBuilders.length}</strong> de {totalOffersCount} ofertas ({activeOffersCount} vigentes).
+                        <strong className="text-[#2B7A55] font-extrabold">{filteredBuilders.length}</strong> de {totalOffersCount} ofertas ({activeOffersCount} vigentes)
                       </>
                     )}
                   </span>
@@ -533,17 +547,17 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
                       onChange={(e) => setHideExpired(e.target.checked)}
                       className="rounded text-[#2B7A55] focus:ring-[#2B7A55]"
                     />
-                    <span>{isEn ? 'Hide expired offers automatically' : 'Ocultar ofertas vencidas automáticamente'}</span>
+                    <span>{isEn ? 'Hide expired' : 'Ocultar vencidas'}</span>
                   </label>
 
                   {/* Google Sheets Live Status Badge */}
                   {isLiveConnected && (
                     <span
-                      className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-lg text-[11px] font-semibold"
+                      className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-lg text-[10px] font-semibold"
                       title={lastSyncTime ? `${isEn ? 'Last synced' : 'Última sinc'}: ${lastSyncTime.toLocaleTimeString()}` : ''}
                     >
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                      <span>Google Sheets Live</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <span>Live Sync</span>
                       <button
                         type="button"
                         onClick={fetchLiveSheetData}
@@ -555,9 +569,7 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
                       </button>
                     </span>
                   )}
-                </div>
 
-                <div className="flex items-center gap-3">
                   <a
                     href={GOOGLE_SHEET_EDIT_URL}
                     target="_blank"
@@ -566,54 +578,81 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
                     title={isEn ? 'Open data spreadsheet in Google Sheets' : 'Abrir hoja de datos en Google Sheets'}
                   >
                     <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>{isEn ? 'Edit in Sheets' : 'Editar en Sheets'}</span>
+                    <span className="hidden sm:inline">{isEn ? 'Sheet' : 'Sheet'}</span>
                     <ExternalLink className="w-3 h-3 opacity-60" />
                   </a>
 
+                  {(searchQuery || selectedLocation !== 'all' || selectedStructure !== 'all' || selectedIncentive !== 'all' || sortBy !== 'rate-asc') && (
+                    <button
+                      type="button"
+                      onClick={handleResetFilters}
+                      className="text-[#2B7A55] hover:text-[#102C46] font-bold transition underline cursor-pointer text-[11px]"
+                    >
+                      {isEn ? 'Reset' : 'Limpiar'}
+                    </button>
+                  )}
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* Slim, Dismissible Balloon Loan Notice Banner */}
+            {showBalloonNotice && (
+              <div className="bg-indigo-50/90 border border-indigo-200/80 rounded-xl px-4 py-2.5 text-xs text-indigo-950 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-2xs">
+                <div className="flex items-center gap-2 min-w-0">
+                  <ShieldCheck className="w-4 h-4 text-indigo-600 shrink-0" />
+                  <span className="truncate">
+                    <strong>{isEn ? 'Zero Balloon Loans:' : 'Sin Préstamos Balloon:'}</strong>{' '}
+                    {isEn
+                      ? 'All displayed offers are fully amortized 30-year mortgages.'
+                      : 'Todas las ofertas mostradas están completamente amortizadas a 30 años.'}
+                  </span>
                   <button
                     type="button"
-                    onClick={handleResetFilters}
-                    className="text-[#2B7A55] hover:text-[#102C46] font-bold transition underline cursor-pointer"
+                    onClick={() => setIsBalloonNoticeExpanded(!isBalloonNoticeExpanded)}
+                    className="text-indigo-600 hover:text-indigo-800 font-bold underline shrink-0 cursor-pointer ml-1 text-[11px] inline-flex items-center gap-0.5"
                   >
-                    {isEn ? 'Reset All Filters' : 'Restablecer Filtros'}
+                    <span>{isBalloonNoticeExpanded ? (isEn ? 'Hide' : 'Ocultar') : (isEn ? 'What does this mean?' : '¿Qué significa?')}</span>
+                    {isBalloonNoticeExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('guide')}
+                    className="text-[11px] font-semibold text-indigo-700 hover:text-indigo-950 underline cursor-pointer"
+                  >
+                    {isEn ? 'Structures Guide' : 'Ver Guía de Estructuras'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowBalloonNotice(false)}
+                    className="p-1 hover:bg-indigo-100 rounded text-indigo-400 hover:text-indigo-700 cursor-pointer"
+                    title={isEn ? 'Dismiss notice' : 'Cerrar aviso'}
+                  >
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Crucial Clarification Banner on Rate Structure & Balloon Loans */}
-            <div className="bg-indigo-50 border border-indigo-200 rounded-2xl p-4 sm:p-5 text-xs text-indigo-950 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xs">
-              <div className="flex items-start gap-3.5">
-                <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 font-bold mt-0.5 shadow-xs">
-                  <Info className="w-4 h-4" />
-                </div>
-                <div>
-                  <h4 className="font-extrabold text-sm text-indigo-950">
-                    {isEn
-                      ? 'Crucial Clarification: Are there "Balloon" loans in these offers?'
-                      : 'Aclaración Crucial: ¿Hay Préstamos "Balloon" en estas ofertas?'}
-                  </h4>
-                  <p className="text-indigo-900 text-xs mt-1 leading-relaxed">
-                    {isEn ? (
-                      <>
-                        <strong>NO Balloon Loans:</strong> None of these builders offer mortgages with a "balloon" payment (where the remaining loan balance is suddenly due in 5 years). All loans are fully amortized over 30 years. However, there are two distinct structures: <strong>1) 30-Year Fixed</strong> (payment never changes) and <strong>2) ARM or 2/1 Buydown</strong> (payment steps up in year 2, 3, or 6). Each card explicitly specifies its structure and deadlines.
-                      </>
-                    ) : (
-                      <>
-                        <strong>NO son préstamos Balloon:</strong> Ninguna de estas constructoras ofrece hipotecas con pago "balloon" (donde venza todo el saldo total de golpe a los 5 años). Todos los préstamos están completamente amortizados a 30 años. Sin embargo, hay dos estructuras muy distintas: <strong>1) Fija a 30 Años</strong> (la cuota nunca cambia) y <strong>2) ARM o Buydown 2/1</strong> (la cuota sube en el año 2, 3 o 6). Cada tarjeta detalla explícitamente su estructura y fecha de vencimiento.
-                      </>
-                    )}
-                  </p>
-                </div>
+            {showBalloonNotice && isBalloonNoticeExpanded && (
+              <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 text-xs text-indigo-900 leading-relaxed -mt-2">
+                <p>
+                  {isEn ? (
+                    <>
+                      <strong>NO Balloon Loans:</strong> None of these builders offer mortgages with a "balloon" payment (where the remaining loan balance is suddenly due in 5 years). All loans are fully amortized over 30 years. However, there are two distinct structures: <strong>1) 30-Year Fixed</strong> (payment never changes) and <strong>2) ARM or 2/1 Buydown</strong> (payment steps up in year 2, 3, or 6). Each card explicitly specifies its structure and deadlines.
+                    </>
+                  ) : (
+                    <>
+                      <strong>NO son préstamos Balloon:</strong> Ninguna de estas constructoras ofrece hipotecas con pago "balloon" (donde venza todo el saldo total de golpe a los 5 años). Todos los préstamos están completamente amortizados a 30 años. Sin embargo, hay dos estructuras muy distintas: <strong>1) Fija a 30 Años</strong> (la cuota nunca cambia) y <strong>2) ARM o Buydown 2/1</strong> (la cuota sube en el año 2, 3 o 6). Cada tarjeta detalla explícitamente su estructura y fecha de vencimiento.
+                    </>
+                  )}
+                </p>
               </div>
-              <button
-                type="button"
-                onClick={() => setActiveTab('guide')}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shrink-0 transition text-xs whitespace-nowrap shadow-xs cursor-pointer"
-              >
-                {isEn ? 'View Structures Guide →' : 'Ver Tabla Explicativa →'}
-              </button>
-            </div>
+            )}
 
             {/* Builders Cards Grid */}
             {filteredBuilders.length === 0 ? (
