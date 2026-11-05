@@ -111,7 +111,7 @@ export function parseGoogleSheetBuildersCSV(csvText: string): BuilderIncentive[]
       ? rawCounties.split(',').map((c) => c.trim()).filter(Boolean)
       : ['Orange', 'Osceola', 'Lake', 'Polk'];
 
-    const keyAreas = getCol(row, 'keyAreas') || 'Florida Central';
+    const keyAreas = getCol(row, 'keyAreas') || 'Florida';
     const lender = getCol(row, 'lender') || 'Prestamista Preferido';
     const contractDeadline = getCol(row, 'contractDeadline') || 'Hasta fin de mes';
     const closingDeadline = getCol(row, 'closingDeadline') || 'Cierre antes de fin de año';

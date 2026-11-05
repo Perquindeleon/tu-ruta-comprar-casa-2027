@@ -85,7 +85,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartDiagnostic, onGoToCalculator,
                 className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#D5AD57]/20 to-[#C7E7A4]/20 hover:from-[#D5AD57]/30 hover:to-[#C7E7A4]/30 border border-[#C7E7A4]/60 text-[#C7E7A4] hover:text-white px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all shadow-sm cursor-pointer transform hover:-translate-y-0.5"
               >
                 <span>🏡</span>
-                <span>{isEn ? 'Special Central Florida Builder Incentives (Nov 2026) →' : 'Especial: Incentivos de Constructoras en Florida Central →'}</span>
+                <span>{isEn ? 'Special: Florida Homebuilders Incentives Guide →' : 'Especial: Incentivos de Constructoras en Todo Florida →'}</span>
               </button>
             </div>
           )}

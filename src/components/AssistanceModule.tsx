@@ -151,7 +151,7 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
           </div>
         )}
 
-        {/* Florida Central New Construction Special Banner */}
+        {/* Florida Statewide New Construction Special Banner */}
         {(!selectedState || selectedState === 'FL') && onGoToFloridaIncentives && (
           <div className="mt-4 p-4 bg-gradient-to-r from-[#102C46] to-[#1e583c] rounded-xl text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm border border-[#C7E7A4]/30">
             <div className="flex items-center space-x-3">
@@ -159,7 +159,7 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
               <div>
                 <div className="flex items-center space-x-2">
                   <span className="text-xs font-black uppercase tracking-wider text-[#C7E7A4]">
-                    {isEn ? 'Special Central Florida Guide • Nov 2026' : 'Especial Florida Central • Noviembre 2026'}
+                    {isEn ? 'Special Florida Builders Guide' : 'Especial Constructoras en Todo Florida'}
                   </span>
                   <span className="bg-[#D5AD57] text-[#102C46] text-[10px] font-extrabold px-1.5 py-0.2 rounded">
                     HOT
@@ -167,8 +167,8 @@ export const AssistanceModule: React.FC<AssistanceModuleProps> = ({
                 </div>
                 <p className="text-xs text-slate-200 mt-0.5">
                   {isEn
-                    ? 'Explore 11 Central Florida homebuilders offering mortgage rates from 3.99% and up to $25k in closing credits.'
-                    : 'Compara 11 constructoras en Florida Central con tasas de interés desde 3.99% y hasta $25,000 para gastos de cierre.'}
+                    ? 'Explore statewide builder incentives across Florida (Orlando, Tampa, Miami, Jacksonville & more) with rates from 3.99% and up to $25k in closing credits.'
+                    : 'Compara constructoras en todo Florida (Orlando, Tampa, Miami, Jacksonville y más) con tasas de interés desde 3.99% y hasta $25,000 para gastos de cierre.'}
                 </p>
               </div>
             </div>

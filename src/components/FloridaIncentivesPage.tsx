@@ -36,6 +36,39 @@ export const GOOGLE_SHEET_CSV_URL =
 export const GOOGLE_SHEET_EDIT_URL =
   'https://docs.google.com/spreadsheets/d/1cqCDUoOYLnTAVLutklTEGmb9NFqoGG-2Q9xgUqy9ENY/edit?gid=0#gid=0';
 
+export const FLORIDA_REGIONS: Record<string, { labelEs: string; labelEn: string; counties: string[] }> = {
+  central: {
+    labelEs: 'Florida Central (Orlando, Kissimmee, Polk, Lake)',
+    labelEn: 'Central Florida (Orlando, Kissimmee, Polk, Lake)',
+    counties: ['Orange', 'Osceola', 'Polk', 'Lake', 'Seminole', 'Volusia', 'Brevard', 'Marion', 'Sumter', 'Flagler'],
+  },
+  tampa: {
+    labelEs: 'Tampa Bay y Costa Oeste (Hillsborough, Pasco, Manatee)',
+    labelEn: 'Tampa Bay & West Coast (Hillsborough, Pasco, Manatee)',
+    counties: ['Hillsborough', 'Pinellas', 'Pasco', 'Manatee', 'Sarasota', 'Hernando', 'Citrus'],
+  },
+  south: {
+    labelEs: 'Sur de Florida (Miami-Dade, Broward, Palm Beach, St. Lucie)',
+    labelEn: 'South Florida (Miami-Dade, Broward, Palm Beach, St. Lucie)',
+    counties: ['Miami-Dade', 'Broward', 'Palm Beach', 'Martin', 'St. Lucie', 'Indian River'],
+  },
+  southwest: {
+    labelEs: 'Suroeste (Fort Myers, Cape Coral, Naples, Charlotte)',
+    labelEn: 'Southwest Florida (Fort Myers, Cape Coral, Naples, Charlotte)',
+    counties: ['Lee', 'Collier', 'Charlotte', 'Hendry', 'Glades'],
+  },
+  northeast: {
+    labelEs: 'Noreste (Jacksonville, St. Johns, Clay)',
+    labelEn: 'Northeast Florida (Jacksonville, St. Johns, Clay)',
+    counties: ['Duval', 'St. Johns', 'Clay', 'Nassau', 'Baker', 'Putnam'],
+  },
+  northwest: {
+    labelEs: 'Noroeste / Panhandle (Pensacola, Tallahassee, Panama City)',
+    labelEn: 'Northwest / Panhandle (Pensacola, Tallahassee, Panama City)',
+    counties: ['Escambia', 'Santa Rosa', 'Okaloosa', 'Walton', 'Bay', 'Leon', 'Wakulla'],
+  },
+};
+
 interface FloridaIncentivesPageProps {
   onBackToMain: () => void;
 }
@@ -49,7 +82,7 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
 
   // Directory filter state
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCounty, setSelectedCounty] = useState('all');
+  const [selectedLocation, setSelectedLocation] = useState('all');
   const [selectedStructure, setSelectedStructure] = useState<'all' | 'fixed' | 'buydown' | 'arm'>('all');
   const [selectedIncentive, setSelectedIncentive] = useState('all');
   const [sortBy, setSortBy] = useState<'rate-asc' | 'closing-desc' | 'expiry-asc' | 'name-asc'>('rate-asc');
@@ -65,6 +98,18 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
   const [isLiveConnected, setIsLiveConnected] = useState<boolean>(false);
   const [isLoadingLive, setIsLoadingLive] = useState<boolean>(false);
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
+
+  // Extract all unique counties detected in dataset
+  const detectedCounties = useMemo(() => {
+    const set = new Set<string>();
+    buildersData.forEach((b) => {
+      b.counties.forEach((c) => {
+        const trimmed = c.trim();
+        if (trimmed) set.add(trimmed);
+      });
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [buildersData]);
 
   // Calculator state
   const [calcMode, setCalcMode] = useState<'fixed' | 'buydown'>('fixed');
@@ -133,9 +178,26 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
         b.lender.toLowerCase().includes(q);
       if (!matchText) return false;
 
-      // 3. County filter
-      if (selectedCounty !== 'all' && !b.counties.includes(selectedCounty)) {
-        return false;
+      // 3. Location filter (Region or specific county)
+      if (selectedLocation !== 'all') {
+        if (selectedLocation.startsWith('region:')) {
+          const regionKey = selectedLocation.replace('region:', '');
+          const region = FLORIDA_REGIONS[regionKey];
+          if (region && region.counties.length > 0) {
+            const matchesRegion = b.counties.some((c) =>
+              region.counties.some((rc) => rc.toLowerCase() === c.toLowerCase().trim())
+            );
+            if (!matchesRegion) return false;
+          }
+        } else if (selectedLocation.startsWith('county:')) {
+          const countyName = selectedLocation.replace('county:', '').toLowerCase();
+          const matchesCounty = b.counties.some((c) => c.toLowerCase().trim() === countyName);
+          if (!matchesCounty) return false;
+        } else {
+          const target = selectedLocation.toLowerCase().trim();
+          const matches = b.counties.some((c) => c.toLowerCase().trim() === target);
+          if (!matches) return false;
+        }
       }
 
       // 4. Structure filter
@@ -170,12 +232,12 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
     }
 
     return result;
-  }, [searchQuery, selectedCounty, selectedStructure, selectedIncentive, sortBy, hideExpired, today]);
+  }, [buildersData, searchQuery, selectedLocation, selectedStructure, selectedIncentive, sortBy, hideExpired, today]);
 
   // Reset filters
   const handleResetFilters = () => {
     setSearchQuery('');
-    setSelectedCounty('all');
+    setSelectedLocation('all');
     setSelectedStructure('all');
     setSelectedIncentive('all');
     setSortBy('rate-asc');
@@ -248,7 +310,7 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-base sm:text-xl font-bold tracking-tight text-white">
-                  {isEn ? 'Central Florida • New Homes Incentives' : 'Florida Central • Casas Nuevas'}
+                  {isEn ? 'Florida Statewide • New Homes Incentives' : 'Florida • Incentivos de Constructoras'}
                 </h1>
                 <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] px-2.5 py-0.5 rounded-full font-medium inline-flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -257,8 +319,8 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
               </div>
               <p className="text-xs text-slate-300">
                 {isEn
-                  ? 'Official comparison: Expiration dates, rate structures (Fixed vs ARM vs Buydown) and closing credits'
-                  : 'Comparativa oficial: Fechas de vencimiento, tipo de tasa (Fija vs ARM vs Buydown) y gastos de cierre'}
+                  ? 'Official statewide comparison: Orlando, Tampa, Miami, Jacksonville, Southwest FL & beyond. Expiration dates, rate structures and closing credits'
+                  : 'Comparativa oficial en todo Florida: Orlando, Tampa, Miami, Jacksonville, Suroeste y más. Fechas de vencimiento, tipo de tasa y gastos de cierre'}
               </p>
             </div>
           </div>
@@ -361,23 +423,34 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
                   </div>
                 </div>
 
-                {/* County filter */}
+                {/* Region / County filter */}
                 <div>
-                  <label htmlFor="fl-county" className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    {isEn ? 'County / Area' : 'Condado / Área'}
+                  <label htmlFor="fl-location" className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                    {isEn ? 'Region / County' : 'Región / Condado'}
                   </label>
                   <select
-                    id="fl-county"
-                    value={selectedCounty}
-                    onChange={(e) => setSelectedCounty(e.target.value)}
+                    id="fl-location"
+                    value={selectedLocation}
+                    onChange={(e) => setSelectedLocation(e.target.value)}
                     className="w-full text-xs sm:text-sm border border-slate-300 rounded-xl px-3 py-2 bg-white focus:ring-2 focus:ring-[#2B7A55] focus:outline-none cursor-pointer"
                   >
-                    <option value="all">{isEn ? 'All Counties' : 'Todos los Condados'}</option>
-                    <option value="Orange">Orange (Orlando, Winter Garden)</option>
-                    <option value="Osceola">Osceola (Kissimmee, St. Cloud)</option>
-                    <option value="Polk">Polk (Davenport, Haines City)</option>
-                    <option value="Lake">Lake (Clermont, Groveland)</option>
-                    <option value="Seminole">Seminole (Sanford, Oviedo)</option>
+                    <option value="all">{isEn ? 'All Florida (Statewide)' : 'Todo Florida (Todo el Estado)'}</option>
+                    <optgroup label={isEn ? 'Major Florida Regions' : 'Regiones Principales de Florida'}>
+                      {Object.entries(FLORIDA_REGIONS).map(([key, reg]) => (
+                        <option key={key} value={`region:${key}`}>
+                          {isEn ? reg.labelEn : reg.labelEs}
+                        </option>
+                      ))}
+                    </optgroup>
+                    {detectedCounties.length > 0 && (
+                      <optgroup label={isEn ? 'Specific Detected Counties' : 'Condados Detectados'}>
+                        {detectedCounties.map((c) => (
+                          <option key={c} value={`county:${c}`}>
+                            {c}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
                   </select>
                 </div>
 
@@ -888,7 +961,7 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
                       />
                     </div>
                     <span className="text-[10px] text-slate-400 block mt-0.5">
-                      {isEn ? 'Orlando average: $15,000 to $25,000' : 'Promedio en Florida Central: $15,000 a $25,000'}
+                      {isEn ? 'Florida average: $15,000 to $25,000' : 'Promedio en Florida: $15,000 a $25,000'}
                     </span>
                   </div>
 
@@ -1114,7 +1187,7 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
                   </p>
                   <div className="bg-white p-3 rounded-xl border border-emerald-200 text-xs text-slate-700">
                     <span className="font-bold text-emerald-800 block mb-1">
-                      {isEn ? 'Who offers it in Central Florida?' : '¿Quién la ofrece en Florida Central?'}
+                      {isEn ? 'Who offers it in Florida?' : '¿Quién la ofrece en Florida?'}
                     </span>
                     D.R. Horton (5.25%), Pulte Homes (5.25%), Taylor Morrison (5.50%), Meritage (5.50%), KB Home (5.50%).
                   </div>
@@ -1384,8 +1457,8 @@ export const FloridaIncentivesPage: React.FC<FloridaIncentivesPageProps> = ({ on
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500 space-y-1">
           <p className="font-medium">
             {isEn
-              ? `Educational compilation of new construction builder incentives across Central Florida (Orlando, Kissimmee, St. Cloud, Davenport, Clermont). Verified for ${currentMonthYear}. All displayed mortgages are fully amortized 30-year loans with zero balloon clauses. Subject to credit qualification with affiliated builder lenders.`
-              : `Compilación informativa de ofertas de constructoras en Florida Central (Orlando, Kissimmee, St. Cloud, Davenport, Clermont). Verificado para ${currentMonthYear}. Todas las hipotecas mostradas están completamente amortizadas a 30 años sin pagos Balloon. Sujeto a calificación crediticia y aprobación con el prestamista afiliado.`}
+              ? `Educational compilation of new construction builder incentives across Florida (Orlando, Tampa, Miami, Jacksonville, Southwest Florida & beyond). Verified for ${currentMonthYear}. All displayed mortgages are fully amortized 30-year loans with zero balloon clauses. Subject to credit qualification with affiliated builder lenders.`
+              : `Compilación informativa de ofertas de constructoras en todo el estado de Florida (Orlando, Tampa, Miami, Jacksonville, Suroeste y más). Verificado para ${currentMonthYear}. Todas las hipotecas mostradas están completamente amortizadas a 30 años sin pagos Balloon. Sujeto a calificación crediticia y aprobación con el prestamista afiliado.`}
           </p>
           <p className="text-[11px] text-slate-400">
             {APP_CONFIG.brandName} • {isEn ? 'Independent Educational Tool' : 'Herramienta Educativa Independiente'}
